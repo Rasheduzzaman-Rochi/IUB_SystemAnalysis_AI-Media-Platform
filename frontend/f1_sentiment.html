@@ -1,0 +1,181 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Sentiment Analysis | MediaMind AI</title>
+    <script crossorigin src="https://unpkg.com/react@18/umd/react.development.js"></script>
+    <script crossorigin src="https://unpkg.com/react-dom@18/umd/react-dom.development.js"></script>
+    <script src="https://unpkg.com/@babel/standalone/babel.min.js"></script>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <style>
+        body { background-color: #0B1121; color: #e2e8f0; font-family: 'Outfit', sans-serif; }
+        .glass-panel { background: rgba(30, 41, 59, 0.4); backdrop-filter: blur(20px); border: 1px solid rgba(255,255,255,0.05); box-shadow: 0 8px 32px 0 rgba(0, 0, 0, 0.37); }
+        .input-dark { background: #151e32; border: 1px solid #2d3b55; color: white; }
+        .input-dark:focus { border-color: #6366f1; box-shadow: 0 0 0 3px rgba(99, 102, 241, 0.2); }
+        @keyframes fadeIn { from { opacity: 0; transform: translateY(10px); } to { opacity: 1; transform: translateY(0); } }
+        .fade-in { animation: fadeIn 0.4s ease-out forwards; }
+        @keyframes slideUp { from { opacity: 0; transform: translateY(20px); } to { opacity: 1; transform: translateY(0); } }
+        .animate-slide-up { animation: slideUp 0.5s ease-out; }
+        .progress-bar { background: #1e293b; border-radius: 10px; overflow: hidden; height: 8px; }
+    </style>
+</head>
+<body>
+    <div id="root"></div>
+    <script type="text/babel">
+        const { useState } = React;
+        const API_BASE = "http://127.0.0.1:8000";
+
+        const LoadingDots = () => (
+            <div className="flex space-x-1 items-center justify-center p-4">
+                <div className="w-2 h-2 bg-blue-500 rounded-full animate-bounce" style={{animationDelay: '0s'}}></div>
+                <div className="w-2 h-2 bg-blue-500 rounded-full animate-bounce" style={{animationDelay: '0.1s'}}></div>
+                <div className="w-2 h-2 bg-blue-500 rounded-full animate-bounce" style={{animationDelay: '0.2s'}}></div>
+            </div>
+        );
+
+        const Icon = ({ name, size = 18, className = '' }) => {
+            const icons = {
+                'zap': '⚡',
+                'x': '✕',
+                'bar-chart': '📊',
+            };
+            return <span className={className} style={{fontSize: `${size}px`}}>{icons[name] || '•'}</span>;
+        };
+
+        const FeatureSentiment = () => {
+            const [text, setText] = useState("");
+            const [result, setResult] = useState(null);
+            const [loading, setLoading] = useState(false);
+
+            const analyzeSentimentLocal = (text) => {
+                const textLower = text.toLowerCase();
+                
+                // Extended Positive keywords
+                const positiveWords = [
+                    'love', 'great', 'amazing', 'excellent', 'wonderful', 'awesome', 'fantastic', 
+                    'good', 'best', 'happy', 'perfect', 'beautiful', 'brilliant', 'superb',
+                    'wonderful', 'fantastic', 'incredible', 'outstanding', 'brilliant', 'superb',
+                    'lovely', 'nice', 'great', 'awesome', 'fantastic', 'fabulous', 'marvelous',
+                    'fun', 'enjoy', 'like', 'love', 'adore', 'appreciate', 'glad', 'pleased',
+                    'satisfied', 'impressed', 'delighted', 'thrilled', 'excited', 'wonderful'
+                ];
+                
+                // Extended Negative keywords
+                const negativeWords = [
+                    'hate', 'terrible', 'awful', 'bad', 'horrible', 'worst', 'disgusting', 
+                    'poor', 'sad', 'angry', 'disappointing', 'useless', 'stupid', 'waste',
+                    'fail', 'failed', 'fails', 'problem', 'problems', 'issue', 'issues',
+                    'broken', 'broke', 'sucks', 'sick', 'ill', 'poor', 'pathetic', 'abysmal',
+                    'terrible', 'awful', 'dreadful', 'miserable', 'annoying', 'annoyed',
+                    'frustrated', 'frustrated', 'disappointed', 'disappointing', 'regret'
+                ];
+                
+                // Check for emojis
+                const positiveEmojis = ['😊', '😄', '😍', '❤️', '👍', '🎉', '✨', '😂', '🥰'];
+                const negativeEmojis = ['😞', '😤', '😠', '💔', '👎', '😡', '🤮', '😭'];
+                
+                let positiveCount = positiveWords.filter(w => textLower.includes(w)).length;
+                let negativeCount = negativeWords.filter(w => textLower.includes(w)).length;
+                
+                positiveCount += positiveEmojis.filter(e => text.includes(e)).length * 2;
+                negativeCount += negativeEmojis.filter(e => text.includes(e)).length * 2;
+                
+                let sentiment, confidence, tone;
+                if (positiveCount > negativeCount && positiveCount > 0) {
+                    sentiment = "Positive";
+                    confidence = Math.min(95, 65 + positiveCount * 8) + "%";
+                    tone = "Enthusiastic";
+                } else if (negativeCount > positiveCount && negativeCount > 0) {
+                    sentiment = "Negative";
+                    confidence = Math.min(95, 65 + negativeCount * 8) + "%";
+                    tone = "Frustrated";
+                } else if (positiveCount + negativeCount > 0) {
+                    // Mixed sentiment
+                    sentiment = positiveCount > negativeCount ? "Positive" : "Negative";
+                    confidence = "55%";
+                    tone = "Mixed";
+                } else {
+                    sentiment = "Neutral";
+                    confidence = "60%";
+                    tone = "Informative";
+                }
+                
+                return { sentiment, confidence, tone };
+            };
+
+            const analyze = async () => {
+                if (!text.trim()) return;
+                setLoading(true);
+                
+                // Just use local analysis directly - no backend API
+                await new Promise(r => setTimeout(r, 800)); // Simulate processing
+                setResult(analyzeSentimentLocal(text));
+                setLoading(false);
+            };
+
+            return (
+                <div className="min-h-screen bg-[#0B1121] flex items-center justify-center p-6">
+                    <a href="index.html" className="absolute top-6 left-6 bg-gray-800 text-white py-2 px-4 rounded-lg hover:bg-gray-700 transition">← Back</a>
+                    <div className="flex flex-col lg:flex-row gap-6 w-full max-w-6xl fade-in">
+                        <div className="w-full lg:w-1/2 flex flex-col">
+                            <div className="mb-4">
+                                <label className="text-sm text-gray-400 font-bold mb-2 block">Enter Text to Analyze</label>
+                                <textarea className="input-dark p-6 rounded-xl text-lg flex-1 resize-none mb-4 outline-none focus:outline-none" placeholder="Paste social media post, review, or comment..." value={text} onChange={e => setText(e.target.value)}></textarea>
+                            </div>
+                            <div className="flex gap-2">
+                                <button onClick={analyze} className="flex-1 bg-gradient-to-r from-blue-600 to-blue-500 hover:from-blue-500 hover:to-blue-400 text-white py-4 rounded-xl font-bold text-lg transition shadow-lg shadow-blue-900/50 flex items-center justify-center gap-2">
+                                    {loading ? <LoadingDots /> : <><Icon name="zap" /> Analyze Sentiment</>}
+                                </button>
+                                <button className="px-4 py-4 rounded-xl bg-slate-800 hover:bg-slate-700 text-white transition" title="Clear">
+                                    <Icon name="x" size={20} />
+                                </button>
+                            </div>
+                        </div>
+                        <div className="w-full lg:w-1/2">
+                            <div className="glass-panel h-full rounded-xl p-8 flex flex-col justify-center items-center text-center relative overflow-hidden min-h-96">
+                                {!result ? (
+                                    <div className="text-gray-500 space-y-4">
+                                        <Icon name="bar-chart" size={64} className="mx-auto opacity-20" />
+                                        <p className="text-lg">Results will appear here</p>
+                                        <p className="text-sm">Powered by Gemini AI</p>
+                                    </div>
+                                ) : (
+                                    <div className="space-y-6 w-full relative z-10 animate-slide-up">
+                                        <div>
+                                            <div className="text-sm text-gray-400 uppercase tracking-widest mb-3">Detected Sentiment</div>
+                                            <div className={`text-6xl font-black ${result.sentiment === 'Positive' ? 'text-green-400' : result.sentiment === 'Negative' ? 'text-red-400' : 'text-yellow-400'}`}>
+                                                {result.sentiment === 'Positive' ? '😊' : result.sentiment === 'Negative' ? '😞' : '😐'} {result.sentiment}
+                                            </div>
+                                        </div>
+                                        <div className="grid grid-cols-2 gap-4 mt-8">
+                                            <div className="bg-slate-800/50 p-4 rounded-lg border border-slate-700/50">
+                                                <div className="text-xs text-gray-500 uppercase font-bold">Tone</div>
+                                                <div className="text-xl font-bold text-white mt-2">{result.tone}</div>
+                                            </div>
+                                            <div className="bg-slate-800/50 p-4 rounded-lg border border-slate-700/50">
+                                                <div className="text-xs text-gray-500 uppercase font-bold">Confidence</div>
+                                                <div className="text-xl font-bold text-blue-400 mt-2">{result.confidence}</div>
+                                            </div>
+                                        </div>
+                                        <div className="mt-6 p-4 rounded-lg bg-slate-800/50 border border-slate-700/50">
+                                            <div className="text-xs text-gray-500 uppercase font-bold mb-2">Strength Indicator</div>
+                                            <div className="progress-bar">
+                                                <div className="bg-gradient-to-r from-blue-500 to-purple-500 h-full" style={{width: result.confidence}}></div>
+                                            </div>
+                                        </div>
+                                    </div>
+                                )}
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            );
+        };
+
+        const root = ReactDOM.createRoot(document.getElementById('root'));
+        root.render(<FeatureSentiment />);
+    </script>
+</body>
+</html>

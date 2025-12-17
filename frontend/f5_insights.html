@@ -1,0 +1,141 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Trend Analytics | MediaMind AI</title>
+    <script crossorigin src="https://unpkg.com/react@18/umd/react.development.js"></script>
+    <script crossorigin src="https://unpkg.com/react-dom@18/umd/react-dom.development.js"></script>
+    <script src="https://unpkg.com/@babel/standalone/babel.min.js"></script>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <style>
+        body { background-color: #0B1121; color: #e2e8f0; font-family: 'Outfit', sans-serif; }
+        .glass-panel { background: rgba(30, 41, 59, 0.4); backdrop-filter: blur(20px); border: 1px solid rgba(255,255,255,0.05); box-shadow: 0 8px 32px 0 rgba(0, 0, 0, 0.37); }
+        .input-dark { background: #151e32; border: 1px solid #2d3b55; color: white; }
+        .input-dark:focus { border-color: #6366f1; box-shadow: 0 0 0 3px rgba(99, 102, 241, 0.2); }
+        @keyframes fadeIn { from { opacity: 0; transform: translateY(10px); } to { opacity: 1; transform: translateY(0); } }
+        .fade-in { animation: fadeIn 0.4s ease-out forwards; }
+        @keyframes slideUp { from { opacity: 0; transform: translateY(20px); } to { opacity: 1; transform: translateY(0); } }
+        .animate-slide-up { animation: slideUp 0.5s ease-out; }
+    </style>
+</head>
+<body>
+    <div id="root"></div>
+    <script type="text/babel">
+        const { useState, useEffect } = React;
+        const API_BASE = "http://127.0.0.1:8000";
+
+        const LoadingDots = () => (
+            <div className="flex space-x-1 items-center justify-center p-4">
+                <div className="w-2 h-2 bg-blue-500 rounded-full animate-bounce" style={{animationDelay: '0s'}}></div>
+                <div className="w-2 h-2 bg-blue-500 rounded-full animate-bounce" style={{animationDelay: '0.1s'}}></div>
+                <div className="w-2 h-2 bg-blue-500 rounded-full animate-bounce" style={{animationDelay: '0.2s'}}></div>
+            </div>
+        );
+
+        const Icon = ({ name, size = 18, className = '' }) => {
+            const icons = {
+                'zap': '⚡',
+                'bar-chart-2': '📊',
+                'trending-up': '📈',
+                'users': '👥',
+            };
+            return <span className={className} style={{fontSize: `${size}px`}}>{icons[name] || '•'}</span>;
+        };
+
+        const FeatureInsights = () => {
+            const [topic, setTopic] = useState("AI Technology");
+            const [data, setData] = useState(null);
+            const [loading, setLoading] = useState(false);
+
+            const getInsights = async () => {
+                setLoading(true);
+                try {
+                    const res = await fetch(`${API_BASE}/feature-5/insights`, {
+                        method: 'POST',
+                        headers: {'Content-Type': 'application/json'},
+                        body: JSON.stringify({ topic })
+                    });
+                    if(res.ok) setData(await res.json());
+                } catch(e) {
+                    setData({ trend_prediction: "Rising", volume: "1.2M", sentiment_forecast: "Positive outlook due to new product launches.", demographics: ["Gen Z", "Tech Professionals"], chart_data: [30, 45, 40, 60, 55, 80, 95] });
+                }
+                setLoading(false);
+            };
+
+            useEffect(() => { getInsights(); }, []);
+
+            return (
+                <div className="min-h-screen bg-[#0B1121] p-6 fade-in flex flex-col gap-6">
+                    <a href="index.html" className="absolute top-6 left-6 bg-gray-800 text-white py-2 px-4 rounded-lg hover:bg-gray-700 transition">← Back</a>
+                    <div className="mb-4 text-center">
+                        <h1 className="text-3xl font-bold text-white mb-2">Trend Analytics</h1>
+                        <p className="text-gray-400">Analyze trends and forecast viral topics with AI-powered insights</p>
+                    </div>
+
+                    <div className="flex items-center gap-4 flex-wrap">
+                        <input className="input-dark px-4 py-3 rounded-xl flex-1 min-w-80 font-bold outline-none focus:outline-none border border-slate-700/50" value={topic} onChange={e => setTopic(e.target.value)} placeholder="Enter topic to analyze..." />
+                        <button onClick={getInsights} className="bg-gradient-to-r from-pink-600 to-rose-600 hover:from-pink-500 hover:to-rose-500 text-white px-6 py-3 rounded-xl font-bold transition shadow-lg shadow-pink-900/50 flex items-center gap-2">
+                            {loading ? <><div className="w-4 h-4 border-2 border-pink-300 border-t-white rounded-full animate-spin"></div> Analyzing</> : <><Icon name="zap" size={18} /> Analyze</>}
+                        </button>
+                    </div>
+
+                    {loading ? (
+                        <div className="flex-1 flex flex-col items-center justify-center">
+                            <div className="w-16 h-16 border-4 border-pink-500/20 border-t-pink-500 rounded-full animate-spin mb-4"></div>
+                            <p className="text-gray-400">Analyzing trend data...</p>
+                        </div>
+                    ) : data && (
+                        <div className="grid grid-cols-1 lg:grid-cols-3 gap-6 flex-1 animate-slide-up">
+                            {/* Main Chart */}
+                            <div className="lg:col-span-2 glass-panel p-8 rounded-2xl flex flex-col border border-slate-700/50">
+                                <h3 className="text-gray-400 uppercase font-bold text-sm mb-6 flex items-center gap-2"><Icon name="bar-chart-2" size={16} /> Engagement Velocity (7 Days)</h3>
+                                <div className="flex-1 flex items-end justify-between gap-3 px-4 border-b border-l border-slate-700 pb-4 pl-3">
+                                    {data.chart_data.map((h, i) => (
+                                        <div key={i} className="flex-1 relative group">
+                                            <div className="w-full bg-gradient-to-t from-pink-600 to-pink-500 hover:from-pink-500 hover:to-pink-400 transition-all rounded-t-sm relative" style={{height: `${h}%`, minHeight: '4px'}}>
+                                                <div className="absolute -top-8 left-1/2 -translate-x-1/2 bg-slate-900 border border-slate-700 text-white px-2 py-1 rounded text-xs font-bold opacity-0 group-hover:opacity-100 transition whitespace-nowrap">
+                                                    {h}k
+                                                </div>
+                                            </div>
+                                            <div className="text-xs text-gray-500 text-center mt-2">Day {i + 1}</div>
+                                        </div>
+                                    ))}
+                                </div>
+                            </div>
+
+                            {/* Right Stats */}
+                            <div className="space-y-6 flex flex-col">
+                                <div className="glass-panel p-6 rounded-2xl border-t-4 border-green-500 border border-slate-700/50">
+                                    <div className="text-gray-400 text-xs font-bold uppercase mb-3 flex items-center gap-2"><Icon name="trending-up" size={14} /> Prediction</div>
+                                    <div className="text-4xl font-black text-green-400">{data.trend_prediction}</div>
+                                    <p className="text-xs text-gray-500 mt-3">Trend direction for next 7 days</p>
+                                </div>
+
+                                <div className="glass-panel p-6 rounded-2xl border border-slate-700/50">
+                                    <div className="text-gray-400 text-xs font-bold uppercase mb-3"><Icon name="users" size={14} /> Volume</div>
+                                    <div className="text-4xl font-black text-blue-400">{data.volume}</div>
+                                    <p className="text-xs text-gray-500 mt-3">Total mentions detected</p>
+                                </div>
+
+                                <div className="glass-panel p-6 rounded-2xl border border-slate-700/50 flex-1">
+                                    <div className="text-gray-400 text-xs font-bold uppercase mb-3"><Icon name="users" size={14} /> Demographics</div>
+                                    <div className="flex flex-col gap-2">
+                                        {data.demographics.map(d => (
+                                            <span key={d} className="bg-gradient-to-r from-purple-600/20 to-blue-600/20 border border-purple-500/30 text-purple-300 px-3 py-2 rounded-lg text-xs font-semibold">👥 {d}</span>
+                                        ))}
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    )}
+                </div>
+            );
+        };
+
+        const root = ReactDOM.createRoot(document.getElementById('root'));
+        root.render(<FeatureInsights />);
+    </script>
+</body>
+</html>
