@@ -11,7 +11,7 @@ This is your complete, production-ready AI Media Platform. All features are impl
 ### Step 1: Start Backend Server
 ```bash
 cd backend
-python -m uvicorn main:app --reload
+python3 -m uvicorn main:app --reload
 ```
 ✅ Backend runs at: `http://127.0.0.1:8000`
 
