@@ -6,6 +6,7 @@ from dotenv import load_dotenv
 import json
 import asyncio
 from google.api_core import exceptions as g_api_exceptions
+from database import SessionLocal, ActivityLog
 
 # Load API Key
 load_dotenv()
@@ -54,7 +55,23 @@ async def translate_text(req: TranslateRequest):
             try:
                 response = model.generate_content(prompt)
                 clean_text = response.text.replace("```json", "").replace("```", "").strip()
-                return json.loads(clean_text)
+                result = json.loads(clean_text)
+                
+                # Log activity
+                try:
+                    db = SessionLocal()
+                    log = ActivityLog(
+                        feature="translate",
+                        input_text=req.text[:256],
+                        output_result=result.get("translated_text", "")[:256]
+                    )
+                    db.add(log)
+                    db.commit()
+                    db.close()
+                except Exception as log_err:
+                    print(f"Log error: {log_err}")
+                
+                return result
             except g_api_exceptions.ResourceExhausted as e:
                 # Respect server suggested retry delay when present
                 retry_delay = getattr(e, "retry_delay", None)
@@ -72,6 +89,22 @@ async def translate_text(req: TranslateRequest):
                 break
 
     print(f"Error calling Gemini: {last_error}")
-    return {
+    error_result = {
         "translated_text": "Error: Quota exceeded or service unavailable. Please retry in a bit or upgrade your Gemini plan."
     }
+    
+    # Log even on error
+    try:
+        db = SessionLocal()
+        log = ActivityLog(
+            feature="translate",
+            input_text=req.text[:256],
+            output_result="Error"
+        )
+        db.add(log)
+        db.commit()
+        db.close()
+    except Exception as log_err:
+        print(f"Log error: {log_err}")
+    
+    return error_result

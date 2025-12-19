@@ -1,6 +1,8 @@
 from fastapi import APIRouter
 import google.generativeai as genai
 import os
+from database import SessionLocal, ActivityLog
+import json
 
 router = APIRouter()
 
@@ -27,10 +29,42 @@ async def summarize_text(request: dict):
         response = model.generate_content(prompt)
         summary = response.text.strip()
         
-        return {
+        result = {
             "summary": summary,
             "compression_ratio": f"{round(len(summary)/len(text)*100, 1)}%"
         }
+        
+        # Log activity
+        try:
+            db = SessionLocal()
+            log = ActivityLog(
+                feature="summary",
+                input_text=text[:256],
+                output_result=summary[:256]
+            )
+            db.add(log)
+            db.commit()
+            db.close()
+        except Exception as log_err:
+            print(f"Log error: {log_err}")
+        
+        return result
     except Exception as e:
         print(f"Error: {e}")
-        return {"summary": "Summary generation failed", "compression_ratio": "0%"}
+        result = {"summary": "Summary generation failed", "compression_ratio": "0%"}
+        
+        # Log activity
+        try:
+            db = SessionLocal()
+            log = ActivityLog(
+                feature="summary",
+                input_text=text[:256] if text else "empty",
+                output_result="Error"
+            )
+            db.add(log)
+            db.commit()
+            db.close()
+        except Exception as log_err:
+            print(f"Log error: {log_err}")
+        
+        return result

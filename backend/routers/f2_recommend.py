@@ -4,6 +4,7 @@ import google.generativeai as genai
 import os
 from dotenv import load_dotenv
 import json
+from database import SessionLocal, ActivityLog
 
 load_dotenv()
 api_key = os.getenv("GEMINI_API_KEY") 
@@ -79,9 +80,41 @@ async def get_recommendations(req: RecRequest):
             article["image"] = f"https://image.pollinations.ai/prompt/{encoded_prompt}?width=600&height=400&nologo=true"
             article["snippet"] = f"Recommended because you like {article['category']}..." # Simple snippet
 
-        return {"recommended_articles": recommended_articles}
+        result = {"recommended_articles": recommended_articles}
+        
+        # Log activity
+        try:
+            db = SessionLocal()
+            log = ActivityLog(
+                feature="recommend",
+                input_text=json.dumps(req.user_interests)[:256],
+                output_result=f"{len(recommended_articles)} articles"
+            )
+            db.add(log)
+            db.commit()
+            db.close()
+        except Exception as log_err:
+            print(f"Log error: {log_err}")
+        
+        return result
     
     except Exception as e:
         print(f"Error calling Gemini: {e}")
         # Fallback: Just return the first 3 articles
-        return {"recommended_articles": ALL_ARTICLES[:3]}
+        result = {"recommended_articles": ALL_ARTICLES[:3]}
+        
+        # Log even on error
+        try:
+            db = SessionLocal()
+            log = ActivityLog(
+                feature="recommend",
+                input_text=json.dumps(req.user_interests)[:256],
+                output_result="3 fallback articles"
+            )
+            db.add(log)
+            db.commit()
+            db.close()
+        except Exception as log_err:
+            print(f"Log error: {log_err}")
+        
+        return result

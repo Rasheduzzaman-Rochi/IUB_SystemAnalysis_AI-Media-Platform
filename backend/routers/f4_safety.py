@@ -3,6 +3,7 @@ import google.generativeai as genai
 import os
 import json
 from dotenv import load_dotenv
+from database import SessionLocal, ActivityLog
 
 load_dotenv()
 api_key = os.getenv("GEMINI_API_KEY")
@@ -67,27 +68,73 @@ Respond with JSON only."""
         if "sources" not in result:
             result["sources"] = ["Gemini AI", "Content Filter"]
         
+        # Log activity
+        try:
+            db = SessionLocal()
+            log = ActivityLog(
+                feature="safety",
+                input_text=text[:256],
+                output_result=result.get("status", "Unknown")
+            )
+            db.add(log)
+            db.commit()
+            db.close()
+        except Exception as log_err:
+            print(f"Log error: {log_err}")
+        
         return result
         
     except json.JSONDecodeError as e:
         print(f"JSON Parse Error: {e}")
         # Fallback for JSON parsing errors
         is_unsafe = any(word in text.lower() for word in ["hate", "kill", "fake", "lie", "scam", "spam", "abuse"])
-        return {
+        result = {
             "status": "Unsafe" if is_unsafe else "Safe",
             "type": "Detected Issue" if is_unsafe else "Verified Content",
             "confidence": "75%",
             "sources": ["Gemini AI"],
             "issues": ["Content analysis performed"]
         }
+        
+        # Log activity
+        try:
+            db = SessionLocal()
+            log = ActivityLog(
+                feature="safety",
+                input_text=text[:256],
+                output_result=result["status"]
+            )
+            db.add(log)
+            db.commit()
+            db.close()
+        except Exception as log_err:
+            print(f"Log error: {log_err}")
+        
+        return result
     except Exception as e:
         print(f"Error: {e}")
-        return {
+        result = {
             "status": "Safe",
             "type": "Analysis Failed",
             "confidence": "50%",
             "sources": ["Fallback"]
         }
+        
+        # Log activity
+        try:
+            db = SessionLocal()
+            log = ActivityLog(
+                feature="safety",
+                input_text=text[:256],
+                output_result="Error"
+            )
+            db.add(log)
+            db.commit()
+            db.close()
+        except Exception as log_err:
+            print(f"Log error: {log_err}")
+        
+        return result
 
 @router.post("/feature-4/safety/batch")
 async def batch_verify(request: dict):

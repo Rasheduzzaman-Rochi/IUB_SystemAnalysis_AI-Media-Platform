@@ -3,6 +3,7 @@ import google.generativeai as genai
 import os
 import json
 import re
+from database import SessionLocal, ActivityLog
 
 router = APIRouter()
 
@@ -19,7 +20,17 @@ async def analyze_sentiment(request: dict):
     try:
         text = request.get("text", "")
         if not text:
-            return {"sentiment": "Neutral", "confidence": "0%", "tone": "Neutral"}
+            result = {"sentiment": "Neutral", "confidence": "0%", "tone": "Neutral"}
+            # Log activity even for empty input
+            try:
+                db = SessionLocal()
+                log = ActivityLog(feature="sentiment", input_text=text[:256], output_result=json.dumps(result))
+                db.add(log)
+                db.commit()
+                db.close()
+            except Exception as e:
+                print(f"Log error (empty input): {e}")
+            return result
         
         model = genai.GenerativeModel('gemini-2.5-flash')
         prompt = f"""Analyze the sentiment of this text in ONE line JSON format:
@@ -39,20 +50,56 @@ Text to analyze: {text}"""
             if json_match:
                 json_str = json_match.group(0)
                 result = json.loads(json_str)
+                # Log activity
+                try:
+                    db = SessionLocal()
+                    log = ActivityLog(feature="sentiment", input_text=text[:256], output_result=json.dumps(result))
+                    db.add(log)
+                    db.commit()
+                    db.close()
+                except Exception as e:
+                    print(f"Log error: {e}")
                 return result
             else:
-                return {"sentiment": "Neutral", "confidence": "75%", "tone": "Informative"}
+                result = {"sentiment": "Neutral", "confidence": "75%", "tone": "Informative"}
+                try:
+                    db = SessionLocal()
+                    log = ActivityLog(feature="sentiment", input_text=text[:256], output_result=json.dumps(result))
+                    db.add(log)
+                    db.commit()
+                    db.close()
+                except Exception as e:
+                    print(f"Log error: {e}")
+                return result
         except Exception as parse_error:
             print(f"Parse error: {parse_error}")
             print(f"Response text: {response.text}")
             # Fallback: try to infer sentiment from text
             text_lower = text.lower()
             if any(word in text_lower for word in ['love', 'great', 'amazing', 'excellent', 'wonderful', 'awesome', 'fantastic']):
-                return {"sentiment": "Positive", "confidence": "70%", "tone": "Enthusiastic"}
+                result = {"sentiment": "Positive", "confidence": "70%", "tone": "Enthusiastic"}
             elif any(word in text_lower for word in ['hate', 'terrible', 'awful', 'bad', 'horrible', 'worst', 'disgusting']):
-                return {"sentiment": "Negative", "confidence": "70%", "tone": "Frustrated"}
+                result = {"sentiment": "Negative", "confidence": "70%", "tone": "Frustrated"}
             else:
-                return {"sentiment": "Neutral", "confidence": "60%", "tone": "Informative"}
+                result = {"sentiment": "Neutral", "confidence": "60%", "tone": "Informative"}
+            try:
+                db = SessionLocal()
+                log = ActivityLog(feature="sentiment", input_text=text[:256], output_result=json.dumps(result))
+                db.add(log)
+                db.commit()
+                db.close()
+            except Exception as e:
+                print(f"Log error (fallback): {e}")
+            return result
     except Exception as e:
         print(f"Error: {e}")
-        return {"sentiment": "Neutral", "confidence": "50%", "tone": "Unknown"}
+        result = {"sentiment": "Neutral", "confidence": "50%", "tone": "Unknown"}
+        try:
+            db = SessionLocal()
+            log = ActivityLog(feature="sentiment", input_text=str(request)[:256], output_result=json.dumps(result))
+            db.add(log)
+            db.commit()
+            db.close()
+        except Exception as le:
+            print(f"Log error (exception): {le}")
+        return result
