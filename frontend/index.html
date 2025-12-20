@@ -1,116 +1,215 @@
 <!DOCTYPE html>
 <html lang="en">
+
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>MediaMind AI | Enterprise Suite</title>
-    
+
     <!-- React & ReactDOM -->
     <script crossorigin src="https://unpkg.com/react@18/umd/react.development.js"></script>
     <script crossorigin src="https://unpkg.com/react-dom@18/umd/react-dom.development.js"></script>
     <script src="https://unpkg.com/@babel/standalone/babel.min.js"></script>
     <script src="https://cdn.tailwindcss.com"></script>
-    <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <link
+        href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=JetBrains+Mono:wght@400;500&display=swap"
+        rel="stylesheet">
 
     <style>
-        body { background-color: #0B1121; color: #e2e8f0; font-family: 'Outfit', sans-serif; overflow: hidden; }
-        
-        /* Glass Effect & Gradients */
-        .glass-panel { 
-            background: rgba(30, 41, 59, 0.4); 
-            backdrop-filter: blur(20px); 
-            border: 1px solid rgba(255,255,255,0.05); 
-            box-shadow: 0 8px 32px 0 rgba(0, 0, 0, 0.37);
-        }
-        
-        .sidebar-link {
-            transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
-            border-left: 3px solid transparent;
-        }
-        .sidebar-link:hover, .sidebar-link.active {
-            background: linear-gradient(90deg, rgba(59, 130, 246, 0.1) 0%, transparent 100%);
-            border-left-color: #3b82f6;
-            color: #fff;
-        }
-        .sidebar-link.active i { color: #3b82f6; filter: drop-shadow(0 0 8px rgba(59,130,246,0.5)); }
-
-        /* Custom Input */
-        .input-dark {
-            background: #151e32;
-            border: 1px solid #2d3b55;
-            color: white;
-            transition: 0.3s;
-        }
-        .input-dark:focus {
-            border-color: #6366f1;
-            box-shadow: 0 0 0 3px rgba(99, 102, 241, 0.2);
+        :root {
+            --bg-dark: #09090b;
+            --panel-bg: #18181b;
+            --border-color: #27272a;
+            --primary: #3b82f6;
+            --primary-glow: rgba(59, 130, 246, 0.15);
         }
 
-        /* Animations */
-        @keyframes fadeIn { from { opacity: 0; transform: translateY(10px); } to { opacity: 1; transform: translateY(0); } }
-        .fade-in { animation: fadeIn 0.4s ease-out forwards; }
-        
-        @keyframes pulse-glow { 0%, 100% { box-shadow: 0 0 10px rgba(59, 130, 246, 0.2); } 50% { box-shadow: 0 0 20px rgba(59, 130, 246, 0.5); } }
-        .animate-glow { animation: pulse-glow 2s infinite; }
-
-        @keyframes slideUp { from { opacity: 0; transform: translateY(20px); } to { opacity: 1; transform: translateY(0); } }
-        .animate-slide-up { animation: slideUp 0.5s ease-out; }
-
-        @keyframes shimmer { 0% { background-position: -1000px 0; } 100% { background-position: 1000px 0; } }
-        .shimmer-loading { background: linear-gradient(90deg, #1e293b 25%, #2d3b55 50%, #1e293b 75%); background-size: 1000px 100%; animation: shimmer 2s infinite; }
-
-        /* Stat Cards */
-        .stat-card {
-            position: relative;
+        body {
+            margin: 0;
+            min-height: 100vh;
+            background-color: var(--bg-dark);
+            color: #e4e4e7;
+            /* zinc-200 */
+            font-family: 'Inter', system-ui, -apple-system, sans-serif;
             overflow: hidden;
+            background-image:
+                linear-gradient(rgba(255, 255, 255, 0.03) 1px, transparent 1px),
+                linear-gradient(90deg, rgba(255, 255, 255, 0.03) 1px, transparent 1px);
+            background-size: 32px 32px;
         }
-        .stat-card::before {
-            content: '';
+
+        /* Subtle Vignette */
+        body::after {
+            content: "";
             position: absolute;
             top: 0;
             left: 0;
             width: 100%;
             height: 100%;
-            background: linear-gradient(135deg, rgba(59, 130, 246, 0.1) 0%, transparent 100%);
+            background: radial-gradient(circle at center, transparent 0%, var(--bg-dark) 120%);
             pointer-events: none;
+            z-index: -1;
         }
 
-        /* Badge */
-        .badge-success { background: rgba(34, 197, 94, 0.1); color: #22c55e; border: 1px solid rgba(34, 197, 94, 0.3); }
-        .badge-warning { background: rgba(239, 68, 68, 0.1); color: #ef4444; border: 1px solid rgba(239, 68, 68, 0.3); }
-        .badge-info { background: rgba(59, 130, 246, 0.1); color: #3b82f6; border: 1px solid rgba(59, 130, 246, 0.3); }
+        #root {
+            height: 100vh;
+            display: flex;
+            flex-direction: column;
+        }
+
+        /* Engineering-grade Panel */
+        .glass-panel {
+            background: rgba(24, 24, 27, 0.7);
+            backdrop-filter: blur(12px);
+            border: 1px solid var(--border-color);
+            box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -1px rgba(0, 0, 0, 0.06);
+            transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1);
+        }
+
+        .glass-panel:hover {
+            border-color: #3f3f46;
+            box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.1), 0 4px 6px -2px rgba(0, 0, 0, 0.05);
+        }
+
+        /* Sidebar Link */
+        .sidebar-link {
+            border-left: 2px solid transparent;
+            color: #a1a1aa;
+            /* zinc-400 */
+        }
+
+        .sidebar-link:hover,
+        .sidebar-link.active {
+            background: var(--primary-glow);
+            border-left-color: var(--primary);
+            color: white;
+        }
+
+        /* Inputs */
+        .input-dark {
+            background: #0f0f12;
+            /* Darker than panel */
+            border: 1px solid var(--border-color);
+            color: white;
+            font-family: 'Inter', sans-serif;
+        }
+
+        .input-dark:focus {
+            border-color: var(--primary);
+            outline: none;
+            box-shadow: 0 0 0 1px var(--primary);
+        }
+
+        /* Typography utility */
+        .font-mono {
+            font-family: 'JetBrains Mono', monospace;
+        }
+
+        .tracking-tight {
+            letter-spacing: -0.025em;
+        }
+
+        .tracking-wide {
+            letter-spacing: 0.025em;
+        }
+
+        /* Animations */
+        @keyframes fadeIn {
+            from {
+                opacity: 0;
+                transform: translateY(4px);
+            }
+
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        .fade-in {
+            animation: fadeIn 0.3s ease-out forwards;
+        }
+
+        @keyframes slideDown {
+            from {
+                transform: translate(-50%, -100%);
+                opacity: 0;
+            }
+
+            to {
+                transform: translate(-50%, 0);
+                opacity: 1;
+            }
+        }
+
+        .animate-slide-down {
+            animation: slideDown 0.8s cubic-bezier(0.2, 0.8, 0.2, 1) forwards;
+        }
+
+        .nav-glass {
+            background: rgba(15, 23, 42, 0.6);
+            /* Slate-900 with opacity */
+            backdrop-filter: blur(16px);
+            -webkit-backdrop-filter: blur(16px);
+            border: 1px solid rgba(255, 255, 255, 0.08);
+            box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.5);
+        }
+
+        /* Badges */
+        .badge {
+            padding: 2px 8px;
+            border-radius: 9999px;
+            font-size: 0.7rem;
+            font-weight: 600;
+            text-transform: uppercase;
+            letter-spacing: 0.05em;
+            border: 1px solid transparent;
+        }
+
+        .badge-info {
+            background: rgba(59, 130, 246, 0.1);
+            color: #60a5fa;
+            border-color: rgba(59, 130, 246, 0.2);
+        }
+
+        .badge-success {
+            background: rgba(34, 197, 94, 0.1);
+            color: #4ade80;
+            border-color: rgba(34, 197, 94, 0.2);
+        }
+
+        .badge-warning {
+            background: rgba(251, 191, 36, 0.1);
+            color: #fbbf24;
+            border-color: rgba(251, 191, 36, 0.2);
+        }
 
         /* Scrollbar */
-        ::-webkit-scrollbar { width: 6px; }
-        ::-webkit-scrollbar-track { background: transparent; }
-        ::-webkit-scrollbar-thumb { background: #334155; border-radius: 10px; }
-        ::-webkit-scrollbar-thumb:hover { background: #475569; }
-
-        /* Gradient Text */
-        .gradient-text { background: linear-gradient(135deg, #3b82f6, #8b5cf6); -webkit-background-clip: text; -webkit-text-fill-color: transparent; background-clip: text; }
-
-        /* Progress Bar */
-        .progress-bar {
-            background: #1e293b;
-            border-radius: 10px;
-            overflow: hidden;
-            height: 6px;
+        ::-webkit-scrollbar {
+            width: 6px;
         }
-        .progress-bar::after {
-            content: '';
-            display: block;
-            background: linear-gradient(90deg, #3b82f6, #8b5cf6);
-            height: 100%;
-            border-radius: 10px;
+
+        ::-webkit-scrollbar-track {
+            background: transparent;
+        }
+
+        ::-webkit-scrollbar-thumb {
+            background: #3f3f46;
+            border-radius: 3px;
+        }
+
+        ::-webkit-scrollbar-thumb:hover {
+            background: #52525b;
         }
     </style>
 </head>
+
 <body>
 
     <div id="root"></div>
 
     <script type="text/babel">
-        const { useState, useEffect } = React;
+        const { useState, useEffect, useRef } = React;
         const API_BASE = "http://127.0.0.1:8000";
 
         // --- HELPER: API CALLER ---
@@ -118,327 +217,142 @@
             try {
                 const res = await fetch(`${API_BASE}${endpoint}`, {
                     method: 'POST',
-                    headers: {'Content-Type': 'application/json'},
+                    headers: { 'Content-Type': 'application/json' },
                     body: JSON.stringify(payload)
                 });
                 if (!res.ok) throw new Error("Backend failed");
                 return await res.json();
             } catch (error) {
                 console.warn("Backend offline, using mock.");
-                await new Promise(r => setTimeout(r, 800));
+                await new Promise(r => setTimeout(r, 600)); // Faster mock response
                 return mockResponse;
             }
         };
 
         const LoadingDots = () => (
-            <div className="flex space-x-1 items-center justify-center p-4">
-                <div className="w-2 h-2 bg-blue-500 rounded-full animate-bounce" style={{animationDelay: '0s'}}></div>
-                <div className="w-2 h-2 bg-blue-500 rounded-full animate-bounce" style={{animationDelay: '0.1s'}}></div>
-                <div className="w-2 h-2 bg-blue-500 rounded-full animate-bounce" style={{animationDelay: '0.2s'}}></div>
+            <div className="flex space-x-1.5 items-center justify-center p-4 opacity-60">
+                <div className="w-1.5 h-1.5 bg-blue-500 rounded-full animate-bounce" style={{ animationDelay: '0s' }}></div>
+                <div className="w-1.5 h-1.5 bg-blue-500 rounded-full animate-bounce" style={{ animationDelay: '0.1s' }}></div>
+                <div className="w-1.5 h-1.5 bg-blue-500 rounded-full animate-bounce" style={{ animationDelay: '0.2s' }}></div>
             </div>
         );
 
+        // Professional SVG Icon System
         const Icon = ({ name, size = 18, className = '' }) => {
             const icons = {
-                'check-circle': '✓',
-                'trending-up': '📈',
-                'alert-circle': '⚠️',
-                'zap': '⚡',
-                'bar-chart': '📊',
-                'globe': '🌐',
-                'shield-check': '🛡️',
-                'bell': '🔔',
-                'settings': '⚙️',
-                'smile': '😊',
-                'layout-grid': '📑',
-                'languages': '🌐',
-                'shield-alert': '🛡️',
-                'bar-chart-2': '📊',
-                'file-text': '📄',
-                'arrow-right': '→',
-                'activity': '📍',
-                'check': '✓',
-                'cpu': '💻',
-                'trophy': '🏆',
-                'gamepad-2': '🎮',
+                // Core UI
+                'activity': <path d="M22 12h-4l-3 9L9 3l-3 9H2" />,
+                'alert-circle': <><circle cx="12" cy="12" r="10" /><line x1="12" y1="8" x2="12" y2="12" /><line x1="12" y1="16" x2="12.01" y2="16" /></>,
+                'alert-triangle': <path d="M10.29 3.86L1.82 18a2 2 0 0 0 1.71 3h16.94a2 2 0 0 0 1.71-3L13.71 3.86a2 2 0 0 0-3.42 0zM12 9v4m0 4h.01" />,
+                'arrow-right': <path d="M5 12h14M12 5l7 7-7 7" />,
+                'bar-chart-2': <path d="M18 20V10M12 20V4M6 20v-6" />,
+                'bell': <path d="M18 8A6 6 0 0 0 6 8c0 7-3 9-3 9h18s-3-2-3-9M13.73 21a2 2 0 0 1-3.46 0" />,
+                'bookmark': <path d="M19 21l-7-5-7 5V5a2 2 0 0 1 2-2h10a2 2 0 0 1 2 2z" />,
+                'check': <polyline points="20 6 9 17 4 12" />,
+                'check-circle': <><path d="M22 11.08V12a10 10 0 1 1-5.93-9.14" /><polyline points="22 4 12 14.01 9 11.01" /></>,
+                'clock': <><circle cx="12" cy="12" r="10" /><polyline points="12 6 12 12 16 14" /></>,
+                'cpu': <><rect x="4" y="4" width="16" height="16" rx="2" ry="2" /><rect x="9" y="9" width="6" height="6" /><line x1="9" y1="1" x2="9" y2="4" /><line x1="15" y1="1" x2="15" y2="4" /><line x1="9" y1="20" x2="9" y2="23" /><line x1="15" y1="20" x2="15" y2="23" /><line x1="20" y1="9" x2="23" y2="9" /><line x1="20" y1="14" x2="23" y2="14" /><line x1="1" y1="9" x2="4" y2="9" /><line x1="1" y1="14" x2="4" y2="14" /></>,
+                'file-text': <><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z" /><polyline points="14 2 14 8 20 8" /><line x1="16" y1="13" x2="8" y2="13" /><line x1="16" y1="17" x2="8" y2="17" /><polyline points="10 9 9 9 8 9" /></>,
+                'gamepad-2': <><line x1="6" y1="11" x2="10" y2="11" /><line x1="8" y1="9" x2="8" y2="13" /><line x1="15" y1="12" x2="15.01" y2="12" /><line x1="18" y1="10" x2="18.01" y2="10" /><path d="M17.32 5H6.68a4 4 0 0 0-3.978 3.59c-.006.052-.01.101-.017.152C2.604 9.416 2 14.456 2 16a3 3 0 0 0 3 3c1 0 1.5-.5 2-1l1.414-1.414A2 2 0 0 1 9.828 16h4.344a2 2 0 0 1 1.414.586L17 18c.5.5 1 1 2 1a3 3 0 0 0 3-3c0-1.545-.604-6.584-.685-7.258-.007-.05-.011-.1-.017-.151A4 4 0 0 0 17.32 5z" /></>,
+                'globe': <><circle cx="12" cy="12" r="10" /><line x1="2" y1="12" x2="22" y2="12" /><path d="M12 2a15.3 15.3 0 0 1 4 10 15.3 15.3 0 0 1-4 10 15.3 15.3 0 0 1-4-10 15.3 15.3 0 0 1 4-10z" /></>,
+                'languages': <><path d="M5 8l6 6" /><path d="M4 14l6-6 2-3" /><path d="M2 5h12" /><path d="M7 2h1" /><path d="M22 22l-5-10-5 10" /><path d="M14 18h6" /></>,
+                'layout-grid': <><rect x="3" y="3" width="7" height="7" /><rect x="14" y="3" width="7" height="7" /><rect x="14" y="14" width="7" height="7" /><rect x="3" y="14" width="7" height="7" /></>,
+                'refresh-cw': <><polyline points="23 4 23 10 17 10" /><polyline points="1 20 1 14 7 14" /><path d="M3.51 9a9 9 0 0 1 14.85-3.36L23 10M1 14l4.64 4.36A9 9 0 0 0 20.49 15" /></>,
+                'send': <><line x1="22" y1="2" x2="11" y2="13" /><polygon points="22 2 15 22 11 13 2 9 22 2" /></>,
+                'settings': <><circle cx="12" cy="12" r="3" /><path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 0 1 0 2.83 2 2 0 0 1-2.83 0l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-2 2 2 2 0 0 1-2-2v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 0 1-2.83 0 2 2 0 0 1 0-2.83l.06.06a1.65 1.65 0 0 0 .33-1.82 1.65 1.65 0 0 0-1.51-1H3a2 2 0 0 1-2-2 2 2 0 0 1 2-2h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 0 1 0-2.83 2 2 0 0 1 2.83 0l.06.06a1.65 1.65 0 0 0 1.82.33H9a1.65 1.65 0 0 0 1-1.51V3a2 2 0 0 1 2-2 2 2 0 0 1 2 2v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 0 1 2.83 0 2 2 0 0 1 0 2.83l-.06.06a1.65 1.65 0 0 0-.33 1.82V9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 0 1 2 2 2 2 0 0 1-2 2h-.09a1.65 1.65 0 0 0-1.51 1z" /></>,
+                'shield-alert': <><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z" /><line x1="12" y1="8" x2="12" y2="12" /><line x1="12" y1="16" x2="12.01" y2="16" /></>,
+                'shield-check': <><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z" /><polyline points="9 12 11 14 15 10" /></>,
+                'sliders': <><line x1="4" y1="21" x2="4" y2="14" /><line x1="4" y1="10" x2="4" y2="3" /><line x1="12" y1="21" x2="12" y2="12" /><line x1="12" y1="8" x2="12" y2="3" /><line x1="20" y1="21" x2="20" y2="16" /><line x1="20" y1="12" x2="20" y2="3" /><line x1="1" y1="14" x2="7" y2="14" /><line x1="9" y1="8" x2="15" y2="8" /><line x1="17" y1="16" x2="23" y2="16" /></>,
+                'smile': <><circle cx="12" cy="12" r="10" /><path d="M8 14s1.5 2 4 2 4-2 4-2" /><line x1="9" y1="9" x2="9.01" y2="9" /><line x1="15" y1="9" x2="15.01" y2="9" /></>,
+                'trending-up': <><polyline points="23 6 13.5 15.5 8.5 10.5 1 18" /><polyline points="17 6 23 6 23 12" /></>,
+                'trophy': <><path d="M6 9H4.5a2.5 2.5 0 0 1 0-5H6" /><path d="M18 9h1.5a2.5 2.5 0 0 0 0-5H18" /><path d="M4 22h16" /><path d="M10 14.66V17c0 .55-.47.98-.97 1.21C7.85 18.75 7 20.24 7 22" /><path d="M14 14.66V17c0 .55.46.98.97 1.21 1.18.54 2.03 2.03 2.03 3.79" /><path d="M12 2a12.06 12.06 0 0 1 11 8c0 3.32-2.69 7-6 7s-6-3.68-6-7a12.06 12.06 0 0 1 11-8z" /></>,
+                'users': <><path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2" /><circle cx="9" cy="7" r="4" /><path d="M23 21v-2a4 4 0 0 0-3-3.87" /><path d="M16 3.13a4 4 0 0 1 0 7.75" /></>,
+                'x': <><line x1="18" y1="6" x2="6" y2="18" /><line x1="6" y1="6" x2="18" y2="18" /></>,
+                'zap': <polygon points="13 2 3 14 12 14 11 22 21 10 12 10 13 2" />,
+                'search': <><circle cx="11" cy="11" r="8" /><line x1="21" y1="21" x2="16.65" y2="16.65" /></>,
+                'menu': <><line x1="3" y1="12" x2="21" y2="12" /><line x1="3" y1="6" x2="21" y2="6" /><line x1="3" y1="18" x2="21" y2="18" /></>,
+                'chevron-down': <path d="M6 9l6 6 6-6" />,
+                'command': <path d="M18 3a3 3 0 0 0-3 3v12a3 3 0 0 0 3 3 3 3 0 0 0 3-3 3 3 0 0 0-3-3H6a3 3 0 0 0-3 3 3 3 0 0 0 3 3 3 3 0 0 0 3-3V6a3 3 0 0 0-3-3 3 3 0 0 0-3 3 3 3 0 0 0 3 3h12a3 3 0 0 0 3-3 3 3 0 0 0-3-3z" />,
+                'help-circle': <><circle cx="12" cy="12" r="10" /><path d="M9.09 9a3 3 0 0 1 5.83 1c0 2-3 3-3 3" /><line x1="12" y1="17" x2="12.01" y2="17" /></>,
             };
-            return <span className={className} style={{fontSize: `${size}px`}}>{icons[name] || '•'}</span>;
+            return (
+                <svg
+                    xmlns="http://www.w3.org/2000/svg"
+                    width={size}
+                    height={size}
+                    viewBox="0 0 24 24"
+                    fill="none"
+                    stroke="currentColor"
+                    strokeWidth="2"
+                    strokeLinecap="round"
+                    strokeLinejoin="round"
+                    className={className}
+                >
+                    {icons[name]}
+                </svg>
+            );
         };
 
         // --- COMPONENTS ---
 
         // 1. DASHBOARD HOME
-        const DashboardHome = () => (
-            <div className="space-y-6 fade-in p-6 overflow-y-auto h-full">
-                {/* Top Stats */}
-                <div className="grid grid-cols-1 md:grid-cols-4 gap-6">
-                    <div className="glass-panel p-6 rounded-2xl stat-card border-l-4 border-blue-500">
-                        <div className="flex justify-between items-start mb-4">
-                            <h3 className="text-gray-400 text-xs font-bold uppercase tracking-wider">System Status</h3>
-                            <span className="w-2 h-2 bg-green-500 rounded-full animate-pulse"></span>
-                        </div>
-                        <div className="text-3xl font-bold text-white">Operational</div>
-                        <div className="flex items-center gap-2 mt-3 text-green-400 text-xs"><Icon name="check-circle" size={14} /> All Systems Active</div>
-                    </div>
+        const DashboardHome = ({ searchQuery = "" }) => {
+            const allFeatures = [
+                { id: 'sentiment', title: 'Sentiment Analysis', desc: 'Analyze public emotion & tone', icon: 'smile', color: 'text-blue-400', href: 'f1_sentiment.html', badge: 'Core' },
+                { id: 'recommend', title: 'Smart Feed', desc: 'AI-Curated news recommendations', icon: 'layout-grid', color: 'text-purple-400', href: 'f2_recommend.html', badge: 'New' },
+                { id: 'translate', title: 'Live Translator', desc: 'Real-time multi-language support', icon: 'languages', color: 'text-yellow-400', href: 'f3_translate.html', badge: 'Beta' },
+                { id: 'fakenews', title: 'Safety Shield', desc: 'Detect misinformation & hate speech', icon: 'shield-alert', color: 'text-red-400', href: 'f4_safety.html', badge: 'Essential' },
+                { id: 'insights', title: 'Trend Analytics', desc: 'Forecast viral topics', icon: 'bar-chart-2', color: 'text-pink-400', href: 'f5_insights.html', badge: 'Pro' },
+                { id: 'summary', title: 'Auto Summarizer', desc: 'Condense long documents', icon: 'file-text', color: 'text-green-400', href: 'f6_summary.html', badge: 'Useful' },
+            ];
 
-                    <div className="glass-panel p-6 rounded-2xl stat-card border-l-4 border-purple-500">
-                        <h3 className="text-gray-400 text-xs font-bold uppercase tracking-wider mb-4">Analyzed Posts</h3>
-                        <div className="text-3xl font-bold text-white">12,847</div>
-                        <div className="text-purple-400 text-xs mt-3 flex items-center gap-1"><Icon name="trending-up" size={14} /> +24% this week</div>
-                    </div>
-
-                    <div className="glass-panel p-6 rounded-2xl stat-card border-l-4 border-pink-500">
-                        <h3 className="text-gray-400 text-xs font-bold uppercase tracking-wider mb-4">Content Curated</h3>
-                        <div className="text-3xl font-bold text-white">3.2k</div>
-                        <div className="text-pink-400 text-xs mt-3">Personalized feeds generated</div>
-                    </div>
-
-                    <div className="glass-panel p-6 rounded-2xl stat-card border-l-4 border-red-500">
-                        <h3 className="text-gray-400 text-xs font-bold uppercase tracking-wider mb-4">Threats Blocked</h3>
-                        <div className="text-3xl font-bold text-white">347</div>
-                        <div className="text-red-400 text-xs mt-3 flex items-center gap-1"><Icon name="alert-circle" size={14} /> Misinformation flagged</div>
-                    </div>
-                </div>
-
-                {/* Activity & Performance */}
-                <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
-                    <div className="lg:col-span-2 glass-panel p-6 rounded-2xl">
-                        <div className="flex justify-between items-center mb-6">
-                            <h3 className="font-bold text-white">API Performance (24h)</h3>
-                            <span className="badge-success text-xs px-3 py-1 rounded-full">Optimal</span>
-                        </div>
-                        <div className="space-y-4">
-                            {[
-                                { name: 'Sentiment Analysis', usage: 85, color: 'from-blue-500 to-blue-600' },
-                                { name: 'Recommendations', usage: 92, color: 'from-purple-500 to-purple-600' },
-                                { name: 'Translation', usage: 68, color: 'from-yellow-500 to-yellow-600' },
-                                { name: 'Safety Verification', usage: 78, color: 'from-red-500 to-red-600' }
-                            ].map((item, i) => (
-                                <div key={i}>
-                                    <div className="flex justify-between mb-2">
-                                        <span className="text-sm text-gray-400">{item.name}</span>
-                                        <span className="text-sm font-bold text-white">{item.usage}%</span>
-                                    </div>
-                                    <div className="progress-bar" style={{['--progress']: `${item.usage}%`}}>
-                                        <div className={`bg-gradient-to-r ${item.color} h-full`} style={{width: `${item.usage}%`}}></div>
-                                    </div>
-                                </div>
-                            ))}
-                        </div>
-                    </div>
-
-                    <div className="glass-panel p-6 rounded-2xl">
-                        <h3 className="font-bold text-white mb-6">Recent Activity</h3>
-                        <div className="space-y-4 text-sm">
-                            {[
-                                { icon: 'activity', text: 'Sentiment spike detected', time: '2m ago', color: 'text-blue-400' },
-                                { icon: 'alert-circle', text: 'Fake news article blocked', time: '15m ago', color: 'text-red-400' },
-                                { icon: 'check-circle', text: 'Translation completed', time: '32m ago', color: 'text-green-400' },
-                                { icon: 'zap', text: 'Insights report generated', time: '1h ago', color: 'text-yellow-400' }
-                            ].map((item, i) => (
-                                <div key={i} className="flex items-center gap-3 pb-3 border-b border-slate-700/50 last:border-0">
-                                    <Icon name={item.icon} size={16} className={item.color} />
-                                    <div className="flex-1">
-                                        <div className="text-gray-300">{item.text}</div>
-                                        <div className="text-xs text-gray-500">{item.time}</div>
-                                    </div>
-                                </div>
-                            ))}
-                        </div>
-                    </div>
-                </div>
-
-                {/* Quick Access Modules */}
-                <h3 className="text-lg font-bold text-white mt-2 mb-4">Feature Modules</h3>
-                <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
-                    {[
-                        {id: 'sentiment', title: 'Sentiment Analysis', desc: 'Analyze public emotion & tone', icon: 'smile', color: 'text-blue-400', href: 'f1_sentiment.html', badge: 'Popular'},
-                        {id: 'recommend', title: 'Smart Feed', desc: 'AI-Curated news recommendations', icon: 'layout-grid', color: 'text-purple-400', href: 'f2_recommend.html', badge: 'New'},
-                        {id: 'translate', title: 'Live Translator', desc: 'Real-time multi-language support', icon: 'languages', color: 'text-yellow-400', href: 'f3_translate.html', badge: 'Beta'},
-                        {id: 'fakenews', title: 'Safety Shield', desc: 'Detect misinformation & hate speech', icon: 'shield-alert', color: 'text-red-400', href: 'f4_safety.html', badge: 'Essential'},
-                        {id: 'insights', title: 'Trend Analytics', desc: 'Forecast viral topics', icon: 'bar-chart-2', color: 'text-pink-400', href: 'f5_insights.html', badge: 'Pro'},
-                        {id: 'summary', title: 'Auto Summarizer', desc: 'Condense long documents', icon: 'file-text', color: 'text-green-400', href: 'f6_summary.html', badge: 'Useful'},
-                    ].map(item => (
-                        <a key={item.id} href={item.href} className="glass-panel p-6 rounded-xl hover:border-blue-500/50 transition-all duration-300 text-left group hover:shadow-lg hover:shadow-blue-900/20 no-underline relative overflow-hidden">
-                            <div className="absolute top-2 right-2">
-                                <span className={`text-[10px] font-bold px-2 py-1 rounded ${
-                                    item.badge === 'New' ? 'badge-info' :
-                                    item.badge === 'Popular' ? 'badge-success' :
-                                    item.badge === 'Beta' ? 'badge-warning' :
-                                    'badge-info'
-                                }`}>{item.badge}</span>
-                            </div>
-                            <div className={`mb-4 p-3 rounded-lg bg-slate-800/50 w-fit group-hover:scale-110 transition ${item.color}`}>
-                                <Icon name={item.icon} size={24} />
-                            </div>
-                            <h4 className="font-bold text-lg text-white">{item.title}</h4>
-                            <p className="text-sm text-gray-400 mt-1">{item.desc}</p>
-                            <div className="flex items-center gap-2 mt-4 text-blue-400 text-xs font-semibold opacity-0 group-hover:opacity-100 transition">
-                                Access <Icon name="arrow-right" size={12} />
-                            </div>
-                        </a>
-                    ))}
-                </div>
-            </div>
-        );
-
-        // 2. SENTIMENT ANALYSIS
-        const FeatureSentiment = () => {
-            const [text, setText] = useState("");
-            const [result, setResult] = useState(null);
-            const [loading, setLoading] = useState(false);
-
-            const analyzeSentimentLocal = (text) => {
-                const textLower = text.toLowerCase();
-                
-                // Extended Positive keywords
-                const positiveWords = [
-                    'love', 'great', 'amazing', 'excellent', 'wonderful', 'awesome', 'fantastic', 
-                    'good', 'best', 'happy', 'perfect', 'beautiful', 'brilliant', 'superb',
-                    'lovely', 'nice', 'great', 'awesome', 'fantastic', 'fabulous', 'marvelous',
-                    'fun', 'enjoy', 'like', 'adore', 'appreciate', 'glad', 'pleased',
-                    'satisfied', 'impressed', 'delighted', 'thrilled', 'excited', 'wonderful'
-                ];
-                
-                // Extended Negative keywords
-                const negativeWords = [
-                    'hate', 'terrible', 'awful', 'bad', 'horrible', 'worst', 'disgusting', 
-                    'poor', 'sad', 'angry', 'disappointing', 'useless', 'stupid', 'waste',
-                    'fail', 'failed', 'fails', 'problem', 'problems', 'issue', 'issues',
-                    'broken', 'broke', 'sucks', 'sick', 'poor', 'pathetic', 'abysmal',
-                    'dreadful', 'miserable', 'annoying', 'annoyed', 'frustrated', 'disappointed', 'regret'
-                ];
-                
-                // Check for emojis
-                const positiveEmojis = ['😊', '😄', '😍', '❤️', '👍', '🎉', '✨', '😂', '🥰'];
-                const negativeEmojis = ['😞', '😤', '😠', '💔', '👎', '😡', '🤮', '😭'];
-                
-                let positiveCount = positiveWords.filter(w => textLower.includes(w)).length;
-                let negativeCount = negativeWords.filter(w => textLower.includes(w)).length;
-                
-                positiveCount += positiveEmojis.filter(e => text.includes(e)).length * 2;
-                negativeCount += negativeEmojis.filter(e => text.includes(e)).length * 2;
-                
-                let sentiment, confidence, tone;
-                if (positiveCount > negativeCount && positiveCount > 0) {
-                    sentiment = "Positive";
-                    confidence = Math.min(95, 65 + positiveCount * 8) + "%";
-                    tone = "Enthusiastic";
-                } else if (negativeCount > positiveCount && negativeCount > 0) {
-                    sentiment = "Negative";
-                    confidence = Math.min(95, 65 + negativeCount * 8) + "%";
-                    tone = "Frustrated";
-                } else if (positiveCount + negativeCount > 0) {
-                    sentiment = positiveCount > negativeCount ? "Positive" : "Negative";
-                    confidence = "55%";
-                    tone = "Mixed";
-                } else {
-                    sentiment = "Neutral";
-                    confidence = "60%";
-                    tone = "Informative";
-                }
-                
-                return { sentiment, confidence, tone };
-            };
-
-            const analyze = async () => {
-                if (!text.trim()) return;
-                setLoading(true);
-                await new Promise(r => setTimeout(r, 800)); // Simulate processing
-                setResult(analyzeSentimentLocal(text));
-                setLoading(false);
-            };
-
-            return (
-                <div className="flex flex-col lg:flex-row gap-6 p-6 h-full fade-in">
-                    <div className="w-full lg:w-1/2 flex flex-col">
-                        <textarea className="input-dark p-6 rounded-xl text-lg flex-1 resize-none mb-4" placeholder="Enter social media text to analyze..." value={text} onChange={e => setText(e.target.value)}></textarea>
-                        <button onClick={analyze} className="bg-blue-600 hover:bg-blue-500 text-white py-4 rounded-xl font-bold text-lg transition shadow-lg shadow-blue-900/50 flex items-center justify-center gap-2">
-                            {loading ? <LoadingDots /> : <><Icon name="zap" /> Run Analysis</>}
-                        </button>
-                    </div>
-                    <div className="w-full lg:w-1/2">
-                        <div className="glass-panel h-full rounded-xl p-8 flex flex-col justify-center items-center text-center relative overflow-hidden">
-                            {!result ? (
-                                <div className="text-gray-500">
-                                    <Icon name="bar-chart" size={64} className="mx-auto mb-4 opacity-20" />
-                                    <p>Results will appear here</p>
-                                </div>
-                            ) : (
-                                <div className="space-y-6 w-full relative z-10">
-                                    <div>
-                                        <div className="text-sm text-gray-400 uppercase tracking-widest mb-2">Detected Sentiment</div>
-                                        <div className={`text-5xl font-black ${result.sentiment === 'Positive' ? 'text-green-400' : result.sentiment === 'Negative' ? 'text-red-400' : 'text-gray-300'}`}>
-                                            {result.sentiment}
-                                        </div>
-                                    </div>
-                                    <div className="grid grid-cols-2 gap-4 mt-8">
-                                        <div className="bg-slate-800/50 p-4 rounded-lg">
-                                            <div className="text-xs text-gray-500 uppercase">Tone</div>
-                                            <div className="text-xl font-bold text-white">{result.tone}</div>
-                                        </div>
-                                        <div className="bg-slate-800/50 p-4 rounded-lg">
-                                            <div className="text-xs text-gray-500 uppercase">Confidence</div>
-                                            <div className="text-xl font-bold text-blue-400">{result.confidence}</div>
-                                        </div>
-                                    </div>
-                                </div>
-                            )}
-                        </div>
-                    </div>
-                </div>
+            const filteredFeatures = allFeatures.filter(item =>
+                item.title.toLowerCase().includes(searchQuery.toLowerCase()) ||
+                item.desc.toLowerCase().includes(searchQuery.toLowerCase())
             );
-        };
-
-        // 3. RECOMMENDATION ENGINE (With Pollinations AI Images)
-        const FeatureRecommendation = () => {
-            const [interests, setInterests] = useState(["Technology"]);
-            const [articles, setArticles] = useState([]);
-            const [loading, setLoading] = useState(false);
-            const allInterests = [{id: "Technology", i:"cpu"}, {id: "Sports", i:"trophy"}, {id: "Politics", i:"globe"}, {id: "Finance", i:"trending-up"}, {id: "Health", i:"activity"}, {id: "Gaming", i:"gamepad-2"}];
-
-            const toggleInterest = (tag) => setInterests(prev => prev.includes(tag) ? prev.filter(t => t !== tag) : [...prev, tag]);
-            const getRecs = async () => {
-                setLoading(true);
-                const data = await callGeminiAPI('/feature-2/recommend', { user_interests: interests, available_articles: [] }, {
-                    recommended_articles: [{id: 1, title: "Backend Offline", category: "System", source: "Local", time: "Now", snippet: "Start python backend.", image: "https://placehold.co/600x400/1e293b/FFF?text=Offline"}]
-                });
-                setArticles(data.recommended_articles || []);
-                setLoading(false);
-            };
-            useEffect(() => { getRecs(); }, []);
 
             return (
-                <div className="flex flex-col lg:flex-row gap-6 p-6 h-full fade-in overflow-hidden">
-                    <div className="w-full lg:w-80 flex-shrink-0 space-y-4 overflow-y-auto">
-                        <div className="glass-panel p-6 rounded-xl">
-                            <h3 className="font-bold text-white mb-4">Feed Preferences</h3>
-                            <div className="space-y-2">
-                                {allInterests.map(item => (
-                                    <button key={item.id} onClick={() => toggleInterest(item.id)} className={`w-full flex items-center gap-3 px-4 py-3 rounded-lg text-sm transition ${interests.includes(item.id) ? 'bg-blue-600 text-white' : 'bg-slate-800/50 text-gray-400 hover:bg-slate-800'}`}>
-                                        <Icon name={item.i} size={16} /> {item.id}
-                                    </button>
-                                ))}
-                            </div>
-                            <button onClick={getRecs} className="w-full mt-6 bg-gradient-to-r from-blue-600 to-purple-600 hover:from-blue-500 hover:to-purple-500 text-white py-2 rounded-lg font-bold transition">Curate Feed</button>
-                        </div>
+                <div className="flex flex-col items-center justify-center min-h-[80vh] p-8 fade-in space-y-12">
+                    {/* Hero Section */}
+                    <div className="text-center space-y-4 max-w-2xl mx-auto">
+                        <h1 className="text-5xl font-black text-white tracking-tight">
+                            <span className="gradient-text">MediaMind AI</span> Suite
+                        </h1>
+                        <p className="text-xl text-gray-400 font-light leading-relaxed">
+                            Enterprise-grade AI tools for content analysis, generation, and safety verification. Select a module to begin.
+                        </p>
                     </div>
-                    <div className="flex-1 overflow-y-auto pr-2">
-                        {loading ? <div className="text-center py-20"><LoadingDots /></div> : (
-                            <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-                                {articles.map((article, idx) => (
-                                    <div key={idx} className="glass-panel rounded-xl overflow-hidden group cursor-pointer hover:border-blue-500/50 transition-all duration-300">
-                                        <div className="h-48 overflow-hidden relative">
-                                            <img src={article.image} className="w-full h-full object-cover transition duration-700 group-hover:scale-110" alt="news"/>
-                                            <span className="absolute top-4 left-4 bg-blue-600/90 backdrop-blur text-white text-[10px] font-bold px-2 py-1 rounded uppercase">{article.category}</span>
-                                        </div>
-                                        <div className="p-5">
-                                            <div className="flex justify-between text-xs text-gray-500 mb-2"><span>{article.source}</span><span>{article.time}</span></div>
-                                            <h3 className="text-lg font-bold text-white leading-tight mb-2 group-hover:text-blue-400 transition">{article.title}</h3>
-                                            <p className="text-sm text-gray-400 line-clamp-2">{article.snippet}</p>
+
+                    {/* Feature Grid */}
+                    <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 w-full max-w-6xl">
+                        {filteredFeatures.length > 0 ? (
+                            filteredFeatures.map((item, idx) => (
+                                <a key={item.id} href={item.href}
+                                    className="glass-panel p-8 rounded-2xl hover:border-blue-500/50 transition-all duration-300 group hover:shadow-2xl hover:shadow-blue-900/20 no-underline relative overflow-hidden flex flex-col items-start transform hover:-translate-y-1"
+                                    style={{ animationDelay: `${idx * 100}ms` }}
+                                >
+                                    <div className="absolute top-0 right-0 p-4 opacity-50">
+                                        <Icon name={item.icon} size={64} className="text-white/5 rotate-12" />
+                                    </div>
+
+                                    <div className="flex justify-between w-full items-start mb-6">
+                                        <div className={`p-4 rounded-xl bg-slate-800/80 w-fit group-hover:scale-110 transition duration-300 border border-slate-700/50 ${item.color}`}>
+                                            <Icon name={item.icon} size={28} />
                                         </div>
                                     </div>
-                                ))}
+
+                                    <h4 className="font-bold text-xl text-white mb-2 group-hover:text-blue-400 transition">{item.title}</h4>
+                                    <p className="text-sm text-gray-400 leading-relaxed mb-6">{item.desc}</p>
+
+                                    <div className="mt-auto flex items-center gap-2 text-blue-400 text-xs font-bold uppercase tracking-widest group-hover:gap-3 transition-all">
+                                        Launch Tool <Icon name="arrow-right" size={12} />
+                                    </div>
+                                </a>
+                            ))
+                        ) : (
+                            <div className="col-span-full text-center py-20 opacity-50">
+                                <Icon name="search" size={48} className="mx-auto mb-4" />
+                                <p className="text-xl">No tools found matching "{searchQuery}"</p>
                             </div>
                         )}
                     </div>
@@ -446,280 +360,100 @@
             );
         };
 
-        // 4. TRANSLATION (Chat Style)
-        const FeatureTranslate = () => {
-            const [input, setInput] = useState("");
-            const [output, setOutput] = useState("");
-            const [loading, setLoading] = useState(false);
-            const [lang, setLang] = useState("Bengali");
 
-            const handleTranslate = async () => {
-                if(!input) return;
-                setLoading(true);
-                const data = await callGeminiAPI('/feature-3/translate', { text: input, target_language: lang }, { translated_text: "Mock Translation Result" });
-                setOutput(data.translated_text);
-                setLoading(false);
-            };
-
-            return (
-                <div className="max-w-3xl mx-auto p-6 h-full flex flex-col fade-in overflow-y-auto">
-                    <div className="mb-8 text-center">
-                        <h1 className="text-3xl font-black bg-gradient-to-r from-yellow-400 to-orange-400 bg-clip-text text-transparent mb-2">Live Translator</h1>
-                        <p className="text-gray-400">Real-time multi-language translation powered by AI</p>
-                    </div>
-
-                    {/* Input Section */}
-                    <div className="glass-panel rounded-2xl p-6 mb-6 border border-slate-700/50">
-                        <div className="flex items-center justify-between mb-4">
-                            <div className="text-xs text-gray-500 uppercase font-bold flex items-center gap-2"><Icon name="globe" size={14} /> English Input</div>
-                            <span className="text-xs text-gray-600">{input.length} characters</span>
-                        </div>
-                        <textarea className="bg-slate-800/50 text-gray-200 p-4 rounded-xl resize-none outline-none border border-slate-700/50 focus:border-yellow-500/50 transition w-full placeholder-gray-600 focus:placeholder-gray-500" placeholder="Type or paste text to translate..." value={input} onChange={e => setInput(e.target.value)} rows="5"></textarea>
-                    </div>
-
-                    {/* Controls */}
-                    <div className="glass-panel p-4 rounded-2xl flex items-center gap-3 mb-6 border border-slate-700/50">
-                        <div className="flex-1">
-                            <select className="bg-slate-800 text-white px-4 py-3 rounded-xl outline-none border border-slate-700/50 w-full font-semibold hover:border-yellow-500/50 focus:border-yellow-500/50 transition" value={lang} onChange={e => setLang(e.target.value)}>
-                                <option value="Bengali">🇧🇩 Bengali</option>
-                                <option value="Spanish">🇪🇸 Spanish</option>
-                                <option value="French">🇫🇷 French</option>
-                                <option value="Hindi">🇮🇳 Hindi</option>
-                                <option value="German">🇩🇪 German</option>
-                                <option value="Japanese">🇯🇵 Japanese</option>
-                                <option value="Arabic">🇸🇦 Arabic</option>
-                            </select>
-                        </div>
-                        <button className="bg-gradient-to-r from-yellow-600 to-orange-600 hover:from-yellow-500 hover:to-orange-500 text-white py-3 px-8 rounded-xl font-bold transition flex items-center gap-2 shadow-lg shadow-yellow-900/50 whitespace-nowrap" onClick={handleTranslate} disabled={loading}>
-                            {loading ? (
-                                <><div className="w-4 h-4 border-2 border-yellow-300 border-t-white rounded-full animate-spin"></div> Translating</>
-                            ) : (
-                                <><Icon name="zap" size={18} /> Translate</>
-                            )}
-                        </button>
-                    </div>
-
-                    {/* Output Section */}
-                    {output && (
-                        <div className="glass-panel rounded-2xl p-6 border border-blue-500/30 mb-6 animate-fadeIn">
-                            <div className="flex items-center justify-between mb-4">
-                                <div className="text-xs text-gray-500 uppercase font-bold flex items-center gap-2"><Icon name="globe" size={14} /> {lang} Translation</div>
-                                <span className="text-xs text-gray-600">{output.length} characters</span>
-                            </div>
-                            <div className="bg-gradient-to-br from-blue-600/10 to-purple-600/10 text-white p-4 rounded-xl border border-blue-500/20 min-h-32">
-                                <p className="text-lg leading-relaxed">{output}</p>
-                            </div>
-                        </div>
-                    )}
-
-                    {loading && (
-                        <div className="glass-panel rounded-2xl p-6 border border-yellow-500/30 mb-6 flex flex-col items-center justify-center min-h-32">
-                            <div className="w-8 h-8 border-4 border-yellow-500/20 border-t-yellow-500 rounded-full animate-spin mb-3"></div>
-                            <p className="text-sm text-gray-400">Translating your text...</p>
-                        </div>
-                    )}
-                </div>
-            );
-        };
-
-        // 5. SAFETY & FAKE NEWS (New Modern UI)
-        const FeatureFakeNews = () => {
-            const [text, setText] = useState("");
-            const [result, setResult] = useState(null);
-            const [loading, setLoading] = useState(false);
-
-            const verify = async () => {
-                if(!text) return;
-                setLoading(true);
-                // Simulated Mock
-                const isFake = text.toLowerCase().includes("fake") || text.toLowerCase().includes("alien");
-                const data = await callGeminiAPI('/feature-4/safety', { text }, { 
-                    status: isFake ? "Unsafe" : "Safe", 
-                    type: isFake ? "Potential Misinformation" : "Credible Content", 
-                    confidence: "94%", 
-                    sources: ["Reuters", "AP News"] 
-                });
-                setResult(data);
-                setLoading(false);
-            };
-
-            return (
-                <div className="max-w-3xl mx-auto p-6 space-y-8 fade-in">
-                     <div className="glass-panel p-8 rounded-2xl text-center">
-                        <div className="w-16 h-16 bg-red-500/20 text-red-400 rounded-full flex items-center justify-center mx-auto mb-4">
-                            <Icon name="shield-check" size={32} />
-                        </div>
-                        <h2 className="text-2xl font-bold text-white">Content Verification Shield</h2>
-                        <p className="text-gray-400 mt-2">Detect Hate Speech, Cyberbullying & Fake News instantly.</p>
-                     </div>
-
-                     <div className="glass-panel p-1 rounded-2xl">
-                        <textarea className="input-dark w-full p-6 rounded-xl text-lg resize-none h-40" placeholder="Paste headline or content to verify..." value={text} onChange={e => setText(e.target.value)}></textarea>
-                        <button onClick={verify} className="w-full bg-red-600 hover:bg-red-500 text-white py-4 rounded-xl font-bold text-lg mt-2 transition flex items-center justify-center gap-2">
-                             {loading ? <LoadingDots /> : "Verify Integrity"}
-                        </button>
-                     </div>
-
-                     {result && (
-                         <div className={`glass-panel p-6 rounded-2xl border-l-4 ${result.status === 'Safe' ? 'border-green-500' : 'border-red-500'} flex items-center justify-between fade-in`}>
-                             <div>
-                                 <div className={`text-2xl font-bold ${result.status === 'Safe' ? 'text-green-400' : 'text-red-400'}`}>
-                                     {result.status === 'Safe' ? '✅ Credible Content' : '⚠️ Potential Threat Detected'}
-                                 </div>
-                                 <div className="text-gray-400 mt-1">{result.type} • {result.confidence} Confidence</div>
-                             </div>
-                             {result.sources && (
-                                 <div className="text-right">
-                                     <div className="text-xs text-gray-500 uppercase font-bold mb-1">Cross-Referenced With</div>
-                                     <div className="flex gap-2 justify-end">
-                                         {result.sources.map((s,i) => <span key={i} className="bg-slate-800 text-xs px-2 py-1 rounded text-gray-300">{s}</span>)}
-                                     </div>
-                                 </div>
-                             )}
-                         </div>
-                     )}
-                </div>
-            );
-        };
-
-        // 6. INSIGHTS & ANALYTICS (New Modern UI)
-        const FeatureInsights = () => {
-            const [topic, setTopic] = useState("AI Technology");
-            const [data, setData] = useState(null);
-            const [loading, setLoading] = useState(false);
-
-            const getInsights = async () => {
-                setLoading(true);
-                const res = await callGeminiAPI('/feature-5/insights', { topic }, {
-                    trend_prediction: "Rising",
-                    volume: "1.2M",
-                    sentiment_forecast: "Positive outlook due to new product launches.",
-                    demographics: ["Gen Z", "Tech Professionals"],
-                    chart_data: [30, 45, 40, 60, 55, 80, 95]
-                });
-                setData(res);
-                setLoading(false);
-            };
-
-            useEffect(() => { getInsights(); }, []);
-
-            return (
-                <div className="p-6 h-full fade-in flex flex-col gap-6">
-                    <div className="flex items-center gap-4">
-                        <input className="input-dark px-4 py-3 rounded-xl w-80 font-bold" value={topic} onChange={e => setTopic(e.target.value)} />
-                        <button onClick={getInsights} className="bg-pink-600 hover:bg-pink-500 text-white px-6 py-3 rounded-xl font-bold transition">Analyze Trend</button>
-                    </div>
-
-                    {loading ? <div className="flex-1 flex items-center justify-center"><LoadingDots /></div> : data && (
-                        <div className="grid grid-cols-1 lg:grid-cols-3 gap-6 flex-1">
-                            {/* Main Chart Simulation */}
-                            <div className="lg:col-span-2 glass-panel p-8 rounded-2xl flex flex-col">
-                                <h3 className="text-gray-400 uppercase font-bold text-sm mb-6">Engagement Velocity (7 Days)</h3>
-                                <div className="flex-1 flex items-end justify-between gap-4 px-4 border-b border-l border-slate-700 pb-2 pl-2">
-                                    {data.chart_data.map((h, i) => (
-                                        <div key={i} className="w-full bg-pink-600/50 hover:bg-pink-500 transition-all rounded-t-sm relative group" style={{height: `${h}%`}}>
-                                            <div className="absolute -top-10 left-1/2 -translate-x-1/2 bg-white text-black px-2 py-1 rounded text-xs font-bold opacity-0 group-hover:opacity-100 transition">{h}k</div>
-                                        </div>
-                                    ))}
-                                </div>
-                            </div>
-
-                            {/* Stat Cards */}
-                            <div className="space-y-6">
-                                <div className="glass-panel p-6 rounded-2xl border-t-4 border-green-500">
-                                    <div className="text-gray-400 text-xs font-bold uppercase">Trend Prediction</div>
-                                    <div className="text-3xl font-bold text-white mt-2 flex items-center gap-2">{data.trend_prediction} <Icon name="trending-up" className="text-green-500" size={24} /></div>
-                                </div>
-                                <div className="glass-panel p-6 rounded-2xl">
-                                    <div className="text-gray-400 text-xs font-bold uppercase">Volume</div>
-                                    <div className="text-3xl font-bold text-white mt-2">{data.volume}</div>
-                                </div>
-                                <div className="glass-panel p-6 rounded-2xl">
-                                    <div className="text-gray-400 text-xs font-bold uppercase">Key Demographics</div>
-                                    <div className="flex gap-2 mt-3">
-                                        {data.demographics.map(d => <span key={d} className="bg-slate-700 px-3 py-1 rounded-full text-sm">{d}</span>)}
-                                    </div>
-                                </div>
-                            </div>
-                        </div>
-                    )}
-                </div>
-            );
-        };
-
-        // 7. SUMMARIZER (New Modern UI)
-        const FeatureSummary = () => {
-            const [text, setText] = useState("");
-            const [summary, setSummary] = useState("");
-            const [loading, setLoading] = useState(false);
-
-            const handleSummarize = async () => {
-                if(!text) return;
-                setLoading(true);
-                const data = await callGeminiAPI('/feature-6/summary', { text }, { summary: "This is a mock summary. The AI generated a concise version of your text." });
-                setSummary(data.summary);
-                setLoading(false);
-            };
-
-            return (
-                <div className="flex flex-col lg:flex-row gap-6 p-6 h-full fade-in">
-                    <div className="w-full lg:w-1/2 flex flex-col">
-                        <div className="text-gray-400 uppercase font-bold text-sm mb-2">Original Document</div>
-                        <textarea className="input-dark p-6 rounded-xl flex-1 resize-none leading-relaxed font-mono text-sm" placeholder="Paste article or report content..." value={text} onChange={e => setText(e.target.value)}></textarea>
-                    </div>
-                    <div className="w-full lg:w-1/2 flex flex-col">
-                        <div className="flex justify-between items-center mb-2">
-                             <div className="text-green-400 uppercase font-bold text-sm">Executive Summary</div>
-                             <button onClick={handleSummarize} className="bg-green-600 hover:bg-green-500 text-white px-4 py-1 rounded-lg text-sm font-bold transition">Summarize</button>
-                        </div>
-                        <div className="glass-panel flex-1 rounded-xl p-8 overflow-y-auto">
-                            {loading ? <LoadingDots /> : (
-                                summary ? <p className="text-lg leading-loose text-white">{summary}</p> : <div className="text-gray-500 italic">Summary will appear here...</div>
-                            )}
-                        </div>
-                    </div>
-                </div>
-            );
-        };
-
-        // --- MAIN LAYOUT ---
         const App = () => {
+            const [searchQuery, setSearchQuery] = useState("");
+
             return (
-                <div className="flex h-screen bg-[#0B1121]">
-                    {/* CONTENT */}
-                    <div className="flex-1 flex flex-col relative overflow-hidden">
-                        {/* Background Glows */}
-                        <div className="absolute top-0 left-0 w-full h-full overflow-hidden pointer-events-none z-0">
-                            <div className="absolute top-[-10%] right-[-5%] w-96 h-96 bg-blue-600/10 rounded-full blur-3xl"></div>
-                            <div className="absolute bottom-[-10%] left-[-5%] w-96 h-96 bg-purple-600/10 rounded-full blur-3xl"></div>
+                <div className="flex h-screen bg-[#0B1121] font-sans text-slate-300 selection:bg-blue-500/30 overflow-hidden">
+
+                    {/* LEFT SIDEBAR */}
+                    <aside className="w-64 h-full sidebar-glass flex flex-col z-50">
+                        {/* Brand */}
+                        <div className="h-16 flex items-center gap-3 px-6 border-b border-white/5">
+                            <span className="font-bold text-2xl text-white tracking-tight ml-2">MediaMind</span>
                         </div>
 
-                        {/* Header */}
-                        <header className="h-20 border-b border-slate-800/50 flex items-center justify-between px-8 z-10 glass-panel border-x-0 border-t-0 bg-opacity-30">
-                            <div className="flex items-center gap-4">
-                                <span className="text-3xl font-black bg-gradient-to-r from-cyan-400 via-blue-500 to-purple-600 bg-clip-text text-transparent tracking-tight cursor-pointer hover:from-cyan-300 hover:via-blue-400 hover:to-purple-500 transition duration-300">MediaMind</span>
+                        {/* Navigation */}
+                        <div className="flex-1 py-6 px-3 space-y-1 overflow-y-auto">
+                            <div className="px-3 mb-2 text-[10px] font-bold uppercase tracking-widest text-gray-500">Platform</div>
+                            <button className="w-full flex items-center gap-3 px-3 py-2.5 rounded-lg text-sm bg-blue-600/10 text-blue-400 border border-blue-600/10 transition-all duration-200 group">
+                                <Icon name="layout-grid" size={18} className="text-blue-400" />
+                                Overview
+                            </button>
+
+                            {/* Functional Tools Links */}
+                            <div className="pt-4 px-3 mb-2 text-[10px] font-bold uppercase tracking-widest text-gray-500">Tools</div>
+                            {[
+                                { name: 'Sentiment Analysis', icon: 'smile', href: 'f1_sentiment.html', color: 'text-blue-400' },
+                                { name: 'Smart Feed', icon: 'layout-grid', href: 'f2_recommend.html', color: 'text-purple-400' },
+                                { name: 'Live Translator', icon: 'languages', href: 'f3_translate.html', color: 'text-yellow-400' },
+                                { name: 'Safety Shield', icon: 'shield-alert', href: 'f4_safety.html', color: 'text-red-400' },
+                                { name: 'Trend Analytics', icon: 'bar-chart-2', href: 'f5_insights.html', color: 'text-pink-400' },
+                                { name: 'Auto Summarizer', icon: 'file-text', href: 'f6_summary.html', color: 'text-green-400' },
+                            ].map((item) => (
+                                <a key={item.name} href={item.href} className="w-full flex items-center gap-3 px-3 py-2.5 rounded-lg text-sm text-gray-400 hover:text-gray-200 hover:bg-white/5 transition-all duration-200 group no-underline">
+                                    <Icon name={item.icon} size={18} className={`text-gray-500 group-hover:${item.color}`} />
+                                    {item.name}
+                                </a>
+                            ))}
+                        </div>
+
+                        {/* User Profile (Bottom) */}
+                        <div className="p-4 border-t border-white/5">
+                            <button className="flex items-center gap-3 w-full p-2 rounded-lg hover:bg-white/5 transition group">
+                                <div className="w-8 h-8 rounded-full bg-gradient-to-tr from-blue-500 to-indigo-500 flex items-center justify-center text-xs font-bold text-white">RR</div>
+                                <div className="text-left flex-1 min-w-0">
+                                    <div className="text-xs font-bold text-white truncate">Rasheduzzaman</div>
+                                    <div className="text-[10px] text-gray-500 truncate">Admin Workspace</div>
+                                </div>
+                                <Icon name="chevron-down" size={14} className="text-gray-500 group-hover:text-gray-300" />
+                            </button>
+                        </div>
+                    </aside>
+
+                    {/* RIGHT CONTENT AREA */}
+                    <div className="flex-1 flex flex-col relative min-w-0">
+                        {/* Background Glows (Moved inside content area) */}
+                        <div className="absolute top-0 left-0 w-full h-full overflow-hidden pointer-events-none z-0">
+                            <div className="absolute top-[-20%] right-[-10%] w-[800px] h-[800px] bg-blue-600/5 rounded-full blur-[120px]"></div>
+                        </div>
+
+                        {/* Top Bar (Context & Actions) */}
+                        <header className="h-16 flex items-center justify-between px-8 border-b border-white/5 relative z-20">
+                            {/* Breadcrumbs / Context */}
+                            <div className="flex items-center gap-2 text-sm text-gray-400">
+                                <span>Platform</span>
+                                <span className="text-gray-600">/</span>
+                                <span className="text-white font-medium">Overview</span>
                             </div>
-                            <div className="flex gap-4 items-center">
-                                <div className="hidden md:flex items-center gap-2 text-xs text-gray-400">
-                                    <span className="w-2 h-2 bg-green-500 rounded-full animate-pulse"></span>
-                                    System: Optimal
+
+                            {/* Right Actions */}
+                            <div className="flex items-center gap-4">
+                                <div className="bg-white/5 border border-white/5 rounded-md px-3 py-1.5 flex items-center gap-2 w-64 focus-within:ring-1 focus-within:ring-blue-500/50 transition duration-300">
+                                    <Icon name="search" size={14} className="text-gray-500" />
+                                    <input
+                                        type="text"
+                                        placeholder="Search..."
+                                        className="bg-transparent border-none outline-none text-sm text-gray-300 placeholder-gray-500 w-full"
+                                        value={searchQuery}
+                                        onChange={(e) => setSearchQuery(e.target.value)}
+                                    />
+                                    <span className="text-[10px] font-bold text-gray-500 bg-white/5 px-1.5 py-0.5 rounded">⌘K</span>
                                 </div>
-                                <button className="w-10 h-10 rounded-full bg-slate-800 flex items-center justify-center text-gray-400 hover:text-white hover:bg-slate-700 transition">
+                                <button className="w-8 h-8 flex items-center justify-center text-gray-400 hover:text-white transition relative">
                                     <Icon name="bell" size={18} />
-                                    <span className="absolute w-2 h-2 bg-red-500 rounded-full top-2 right-2"></span>
+                                    <span className="absolute top-1.5 right-1.5 w-2 h-2 bg-red-500 rounded-full border border-[#0B1121]"></span>
                                 </button>
-                                <button className="w-10 h-10 rounded-full bg-slate-800 flex items-center justify-center text-gray-400 hover:text-white hover:bg-slate-700 transition">
-                                    <Icon name="settings" size={18} />
+                                <button className="w-8 h-8 flex items-center justify-center text-gray-400 hover:text-white transition">
+                                    <Icon name="help-circle" size={18} />
                                 </button>
-                                <div className="w-10 h-10 rounded-full bg-gradient-to-br from-blue-500 to-purple-600 flex items-center justify-center text-white font-bold text-sm cursor-pointer hover:shadow-lg hover:shadow-blue-500/50 transition">
-                                    RR
-                                </div>
                             </div>
                         </header>
 
-                        {/* Main View */}
-                        <main className="flex-1 overflow-y-auto relative z-10">
-                            <DashboardHome />
+                        {/* Main View Scrollable */}
+                        <main className="flex-1 overflow-y-auto relative z-10 p-8">
+                            <DashboardHome searchQuery={searchQuery} />
                         </main>
                     </div>
                 </div>
@@ -730,4 +464,5 @@
         root.render(<App />);
     </script>
 </body>
+
 </html>
