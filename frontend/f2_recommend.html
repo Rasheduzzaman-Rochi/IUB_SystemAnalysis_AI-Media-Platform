@@ -45,17 +45,33 @@
                 'refresh-cw': '🔄',
                 'bookmark': '🔖',
                 'clock': '🕐',
+                'arrow-right': '→',
             };
             return <span className={className} style={{fontSize: `${size}px`}}>{icons[name] || '•'}</span>;
         };
 
         const FeatureRecommendation = () => {
-            const [interests, setInterests] = useState(["Technology"]);
-            const [articles, setArticles] = useState([]);
+            // Load saved data from localStorage using lazy initialization (runs only once)
+            const [interests, setInterests] = useState(() => {
+                try {
+                    return JSON.parse(localStorage.getItem('feed_interests')) || ["Technology"];
+                } catch { return ["Technology"]; }
+            });
+            const [articles, setArticles] = useState(() => {
+                try {
+                    return JSON.parse(localStorage.getItem('feed_articles')) || [];
+                } catch { return []; }
+            });
             const [loading, setLoading] = useState(false);
             const allInterests = [{id: "Technology", i:"cpu"}, {id: "Sports", i:"trophy"}, {id: "Politics", i:"globe"}, {id: "Finance", i:"trending-up"}, {id: "Health", i:"activity"}, {id: "Gaming", i:"gamepad-2"}];
 
-            const toggleInterest = (tag) => setInterests(prev => prev.includes(tag) ? prev.filter(t => t !== tag) : [...prev, tag]);
+            const toggleInterest = (tag) => {
+                setInterests(prev => {
+                    const newInterests = prev.includes(tag) ? prev.filter(t => t !== tag) : [...prev, tag];
+                    localStorage.setItem('feed_interests', JSON.stringify(newInterests));
+                    return newInterests;
+                });
+            };
             const getRecs = async () => {
                 setLoading(true);
                 try {
@@ -64,13 +80,18 @@
                         headers: {'Content-Type': 'application/json'},
                         body: JSON.stringify({ user_interests: interests, available_articles: [] })
                     });
-                    if(res.ok) setArticles((await res.json()).recommended_articles || []);
+                    if(res.ok) {
+                        const data = (await res.json()).recommended_articles || [];
+                        setArticles(data);
+                        localStorage.setItem('feed_articles', JSON.stringify(data));
+                    }
                 } catch(e) {
-                    setArticles([{id: 1, title: "Backend Offline", category: "System", source: "Local", time: "Now", snippet: "Start python backend.", image: "https://placehold.co/600x400/1e293b/FFF?text=Offline"}]);
+                    const fallback = [{id: 1, title: "Backend Offline", category: "System", source: "Local", time: "Now", snippet: "Start python backend.", image: "https://placehold.co/600x400/1e293b/FFF?text=Offline"}];
+                    setArticles(fallback);
+                    localStorage.setItem('feed_articles', JSON.stringify(fallback));
                 }
                 setLoading(false);
             };
-            useEffect(() => { getRecs(); }, []);
 
             return (
                 <div className="min-h-screen bg-[#0B1121] flex flex-col p-6 fade-in">
@@ -105,6 +126,12 @@
                                 <div className="flex flex-col items-center justify-center h-96">
                                     <div className="w-12 h-12 border-4 border-blue-500/20 border-t-blue-500 rounded-full animate-spin mb-4"></div>
                                     <p className="text-gray-400">Generating personalized feed...</p>
+                                </div>
+                            ) : articles.length === 0 ? (
+                                <div className="flex flex-col items-center justify-center h-96 glass-panel rounded-2xl">
+                                    <div className="text-6xl mb-4">📰</div>
+                                    <h3 className="text-xl font-bold text-white mb-2">No Articles Yet</h3>
+                                    <p className="text-gray-400 mb-6">Select your interests and click "Curate Feed" to get started</p>
                                 </div>
                             ) : (
                                 <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
