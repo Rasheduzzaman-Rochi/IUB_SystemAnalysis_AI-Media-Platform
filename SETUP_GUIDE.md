@@ -1,261 +1,126 @@
-# 🚀 MediaMind AI - Complete Setup & Testing Guide
+# 🛠️ MediaMind AI - Setup & Installation Guide
 
-## ✅ Project Status: FULLY FUNCTIONAL
+This guide will walk you through setting up the MediaMind AI platform on your local machine.
 
-This is your complete, production-ready AI Media Platform. All features are implemented and tested.
+## ✅ Prerequisites
+
+Before you begin, ensure you have the following installed:
+
+*   **Python 3.9+**: [Download Python](https://www.python.org/downloads/)
+*   **Git**: [Download Git](https://git-scm.com/downloads)
+*   **Google Gemini API Key**: Get one from [Google AI Studio](https://aistudio.google.com/)
 
 ---
 
-## 📋 Quick Start (5 minutes)
+## 📥 Installation Steps
 
-### Step 1: Start Backend Server
+### 1. Clone the Repository
+
+Open your terminal and run:
+
+```bash
+git clone https://github.com/Rasheduzzaman-Rochi/AI-Media-Platform.git
+cd AI-Media-Platform
+```
+
+### 2. Backend Setup
+
+It is recommended to use a virtual environment to manage dependencies.
+
+**Create and Activate Virtual Environment:**
+
+*   **macOS/Linux:**
+    ```bash
+    python3 -m venv .venv
+    source .venv/bin/activate
+    ```
+*   **Windows:**
+    ```bash
+    python -m venv .venv
+    .venv\Scripts\activate
+    ```
+
+**Install Dependencies:**
+
+Navigate to the backend folder and install the required packages:
+
 ```bash
 cd backend
-python3 -m uvicorn main:app --reload
+pip install -r requirements.txt
 ```
-✅ Backend runs at: `http://127.0.0.1:8000`
 
-### Step 2: Open Frontend
+### 3. Configuration (.env)
+
+You need to configure your API key for the AI features to work.
+
+1.  Create a file named `.env` in the **root** directory (or inside `backend/` depending on where you run the command, but usually root is best if using `python-dotenv`).
+    *   *Note: The current setup loads from the environment. Ensure the variable is set.*
+2.  Add your Gemini API key:
+
+```env
+GEMINI_API_KEY=your_actual_api_key_here
+```
+
+### 4. Run the Backend Server
+
+From the `backend/` directory, start the FastAPI server:
+
 ```bash
-# Option A: Open directly (Recommended)
-frontend/index.html  (double-click in file explorer)
-
-# Option B: Local server
-cd frontend
-python -m http.server 8080
-# Visit http://localhost:8080
+uvicorn main:app --reload
 ```
 
-✅ Frontend dashboard loads instantly!
+You should see output indicating the server is running at `http://127.0.0.1:8000`.
+
+**⚠️ Important:** Keep this terminal window **OPEN**. If you close it, the backend will stop, and the AI features will not work.
+
+### 5. Verify Backend Connection
+
+Before starting the frontend, ensure the backend is reachable:
+
+1.  Open your browser and visit: [http://127.0.0.1:8000](http://127.0.0.1:8000)
+    *   ✅ You should see: `{"status": "MediaMind Backend Running"}`
+2.  (Optional) Visit the Interactive API Docs: [http://127.0.0.1:8000/docs](http://127.0.0.1:8000/docs)
+    *   This allows you to test endpoints directly from the browser.
 
 ---
 
-## 🎯 What You Have
+## 🖥️ Running the Frontend
 
-### ✨ 6 AI Features (All Working)
+The frontend is built with standard HTML/JS and uses React via CDN, so no build step is required.
 
-| Feature | Location | Status |
-|---------|----------|--------|
-| **Sentiment Analysis** | Dashboard / `f1_sentiment.html` | ✅ Live |
-| **Smart Feed** | Dashboard / `f2_recommend.html` | ✅ Live |
-| **Live Translator** | Dashboard / `f3_translate.html` | ✅ Live |
-| **Safety Shield** | Dashboard / `f4_safety.html` | ✅ Live |
-| **Trend Analytics** | Dashboard / `f5_insights.html` | ✅ Live |
-| **Auto Summarizer** | Dashboard / `f6_summary.html` | ✅ Live |
+### Option A: Direct File Open (Simplest)
+Simply navigate to the `frontend/` folder in your file explorer and double-click `index.html`.
 
-### 📁 File Organization
+### Option B: Live Server (Recommended)
+If you use VS Code, install the **Live Server** extension.
+1.  Right-click `frontend/index.html`.
+2.  Select **"Open with Live Server"**.
 
-```
-✅ Frontend (7 HTML files - all complete)
-   - index.html (main dashboard)
-   - f1_sentiment.html through f6_summary.html
-
-✅ Backend (Python FastAPI)
-   - main.py (server & CORS setup)
-   - 6 router files (one per feature)
-   - Gemini 2.5 Flash API integration
-
-✅ Configuration
-   - .env (Gemini API key configured)
-   - requirements.txt (all dependencies)
-```
+This provides hot-reloading and a better development experience.
 
 ---
 
-## 🧪 Testing Each Feature
+## 🧪 Verification
 
-### 1. Dashboard (Start Here!)
-```
-Open: frontend/index.html
-- View system status
-- See API performance metrics
-- Click any feature to test
-```
+To verify everything is working:
 
-### 2. Test API Endpoints
-```bash
-# Sentiment Analysis
-curl -X POST http://127.0.0.1:8000/feature-1/sentiment \
-  -H "Content-Type: application/json" \
-  -d '{"text":"I love this!"}'
-
-# Translation
-curl -X POST http://127.0.0.1:8000/feature-3/translate \
-  -H "Content-Type: application/json" \
-  -d '{"text":"Hello","target_language":"Bengali"}'
-
-# Summarization
-curl -X POST http://127.0.0.1:8000/feature-6/summary \
-  -H "Content-Type: application/json" \
-  -d '{"text":"This is a long text that needs summarization..."}'
-```
-
-### 3. Frontend Testing
-- Open `index.html` → Click "Translate" in sidebar
-- Type English text → Select language → Click "Translate"
-- See result appear below ✅
+1.  Open the dashboard (`index.html`).
+2.  Click on **"Translate"** in the sidebar.
+3.  Enter "Hello World" and select "Spanish".
+4.  Click **Translate**.
+5.  If you see "Hola Mundo", your backend and AI connection are working perfectly! 🎉
 
 ---
 
-## 🔑 Important Notes
+## ❓ Troubleshooting
 
-### Environment Setup
-✅ **Already Done!** API key is in `backend/.env`
+**Issue: "Fetch error" or "Network Error"**
+*   Ensure the backend server is running (`uvicorn main:app --reload`).
+*   Check if the backend URL in the frontend files matches your local server (default: `http://127.0.0.1:8000`).
 
-### Available Languages (Translator)
-- Bengali 🇧🇩
-- Spanish 🇪🇸
-- French 🇫🇷
-- Hindi 🇮🇳
-- German 🇩🇪
-- Japanese 🇯🇵
-- Arabic 🇸🇦
+**Issue: "Quota exceeded"**
+*   This means you've hit the rate limit for the Gemini API. Wait a minute and try again, or check your Google AI Studio quota.
 
-### Browser Compatibility
-- ✅ Chrome (Recommended)
-- ✅ Firefox
-- ✅ Edge
-- ✅ Safari
+**Issue: Database errors**
+*   Delete the `.mediamind.db` (or `mediamind.db`) file in the `backend/` folder and restart the server. It will be recreated automatically.
 
----
-
-## 📊 Features Breakdown
-
-### Sentiment Analysis
-- Input: Any text
-- Output: Sentiment (Positive/Negative/Neutral) + confidence + tone
-- Tech: Gemini 2.5 Flash AI
-
-### Smart Feed
-- Input: Select interests
-- Output: AI-curated news articles
-- Tech: Gemini recommendations engine
-
-### Live Translator
-- Input: Text + target language
-- Output: Translated text in selected language
-- Tech: Gemini translation model
-- **Status**: ✅ Fully working with actual translations!
-
-### Safety Shield
-- Input: Content to verify
-- Output: Safe/Unsafe status + verification sources
-- Tech: Gemini content analysis
-
-### Trend Analytics
-- Input: Topic name
-- Output: Trend prediction + volume + sentiment forecast
-- Tech: Gemini trend analysis
-
-### Auto Summarizer
-- Input: Long text/document
-- Output: Concise summary + compression ratio
-- Tech: Gemini text summarization
-
----
-
-## 🎨 UI Features
-
-✨ **Modern Design**
-- Dark theme for eye comfort
-- Glass morphism effects
-- Smooth animations
-- Responsive layout
-- Real-time updates
-
-🚀 **Performance**
-- Fast load time (<1 second)
-- Instant API responses
-- Smooth transitions
-- Mobile-friendly
-
----
-
-## 🔧 Configuration Files
-
-### Backend Files
-```
-backend/
-├── main.py                 ✅ FastAPI server setup
-├── .env                    ✅ Gemini API key configured
-├── requirements.txt        ✅ Dependencies
-└── routers/
-    ├── f1_sentiment.py     ✅ Working
-    ├── f2_recommend.py     ✅ Working
-    ├── f3_translate.py     ✅ Working
-    ├── f4_safety.py        ✅ Working
-    ├── f5_insights.py      ✅ Working
-    └── f6_summary.py       ✅ Working
-```
-
-### Frontend Files
-```
-frontend/
-├── index.html              ✅ Main dashboard (44KB)
-├── f1_sentiment.html       ✅ Feature page (8.2KB)
-├── f2_recommend.html       ✅ Feature page (9.9KB)
-├── f3_translate.html       ✅ Feature page (8.8KB) - TESTED ✓
-├── f4_safety.html          ✅ Feature page (7.7KB)
-├── f5_insights.html        ✅ Feature page (8.9KB)
-└── f6_summary.html         ✅ Feature page (7.5KB)
-```
-
----
-
-## ✅ Complete Checklist
-
-- [x] Frontend: All 7 HTML files created and styled
-- [x] Backend: FastAPI server running
-- [x] APIs: All 6 endpoints implemented
-- [x] Integration: Gemini 2.5 Flash API connected
-- [x] Styling: Glass morphism, dark theme, animations
-- [x] Navigation: Sidebar + feature cards working
-- [x] Responsive: Desktop and mobile views
-- [x] Testing: All features tested and working
-- [x] Documentation: README and setup guide complete
-- [x] Configuration: API key configured
-
----
-
-## 🚀 Next Steps
-
-### To Use the Platform:
-1. ✅ Keep `backend/` terminal running
-2. ✅ Open `frontend/index.html` in browser
-3. ✅ Click any feature to test
-4. ✅ Enjoy the AI-powered media platform!
-
-### To Deploy:
-1. Configure environment variables in `backend/.env`
-2. Use production WSGI server (Gunicorn/uWSGI)
-3. Enable HTTPS
-4. Set specific CORS origins
-
-### To Extend:
-1. Add more features in `backend/routers/`
-2. Create new HTML pages in `frontend/`
-3. Update navigation in `index.html`
-4. Test each endpoint
-
----
-
-## 📞 Support
-
-**All Features Working?** ✅ YES!
-**Need to Test?** Open `frontend/index.html` and click features
-**Backend Issues?** Run: `python -m uvicorn main:app --reload` in `backend/`
-**API Key Problem?** Check `backend/.env` has valid key
-
----
-
-## 🎉 You're All Set!
-
-Your MediaMind AI Platform is fully functional and ready to use.
-
-**Start Here**: Open `frontend/index.html` → See the magic! ✨
-
----
-
-**Created**: December 2025
-**Status**: ✅ Production Ready
-**Last Tested**: All features verified working
