@@ -49,32 +49,41 @@
                 // Icons initialized via Icon component
             }, [output, loading]);
 
-            const handleTranslate = async () => {
-                if(!input) return;
-                setLoading(true);
-                try {
-                    const res = await fetch(`${API_BASE}/feature-3/translate`, {
-                        method: 'POST',
-                        headers: {'Content-Type': 'application/json'},
-                        body: JSON.stringify({ text: input, target_language: lang })
-                    });
-                    if(res.ok) {
-                        const data = await res.json();
-                        setOutput(data.translated_text || "Translation completed");
-                    } else {
-                        setOutput("Mock Translation: " + input + " in " + lang);
-                    }
-                } catch(e) {
-                    console.error("Translation error:", e);
-                    setOutput("Mock Translation: " + input + " in " + lang);
+            const handleTranslate = (e) => {
+                if (e) {
+                    e.preventDefault();
+                    e.stopPropagation();
                 }
-                setLoading(false);
+                if(!input || loading) return;
+                setLoading(true);
+                
+                fetch(`${API_BASE}/feature-3/translate`, {
+                    method: 'POST',
+                    headers: {'Content-Type': 'application/json'},
+                    body: JSON.stringify({ text: input, target_language: lang })
+                })
+                .then(res => {
+                    if(res.ok) {
+                        return res.json();
+                    } else {
+                        throw new Error('Failed');
+                    }
+                })
+                .then(data => {
+                    setOutput(data.translated_text || "Translation completed");
+                    setLoading(false);
+                })
+                .catch(err => {
+                    console.error("Translation error:", err);
+                    setOutput("Mock Translation: " + input + " in " + lang);
+                    setLoading(false);
+                });
             };
 
             return (
                 <div className="min-h-screen bg-[#0B1121] flex items-center justify-center p-6 fade-in">
                     <a href="index.html" className="absolute top-6 left-6 bg-gray-800 text-white py-2 px-4 rounded-lg hover:bg-gray-700 transition">← Back</a>
-                    <div className="max-w-3xl w-full flex flex-col">
+                    <form className="max-w-3xl w-full flex flex-col" onSubmit={(e) => e.preventDefault()}>
                         <div className="mb-8 text-center">
                             <h1 className="text-4xl font-black bg-gradient-to-r from-yellow-400 to-orange-400 bg-clip-text text-transparent mb-2">Live Translator</h1>
                             <p className="text-gray-400">Real-time multi-language translation powered by AI</p>
@@ -102,7 +111,7 @@
                                     <option value="Arabic">🇸🇦 Arabic</option>
                                 </select>
                             </div>
-                            <button className="bg-gradient-to-r from-yellow-600 to-orange-600 hover:from-yellow-500 hover:to-orange-500 text-white py-3 px-8 rounded-xl font-bold transition flex items-center gap-2 shadow-lg shadow-yellow-900/50 whitespace-nowrap" onClick={handleTranslate} disabled={loading}>
+                            <button type="button" className="bg-gradient-to-r from-yellow-600 to-orange-600 hover:from-yellow-500 hover:to-orange-500 text-white py-3 px-8 rounded-xl font-bold transition flex items-center gap-2 shadow-lg shadow-yellow-900/50 whitespace-nowrap" onClick={handleTranslate} disabled={loading}>
                                 {loading ? (
                                     <><div className="w-4 h-4 border-2 border-yellow-300 border-t-white rounded-full animate-spin"></div> Translating</>
                                 ) : (
@@ -134,7 +143,7 @@
                         <div className="p-4 rounded-lg bg-slate-800/30 border border-slate-700/50 text-center text-sm text-gray-400">
                             🔒 Encrypted • 🌍 7+ Languages
                         </div>
-                    </div>
+                    </form>
                 </div>
             );
         };
